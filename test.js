@@ -1,5 +1,5 @@
 //import * as THREE from './three.js-master/build/three.js';
-
+//ctrl+g 1 enter comment
 export default function init() {
     const width = window.innerWidth;
     const height = window.innerHeight;
