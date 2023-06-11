@@ -1,29 +1,46 @@
+//import * as THREE from './three.js-master/build/three.js';
+
 export default function init() {
-    const width = window.innerWidth
-    const height = window.innerHeight
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     // scene
-    const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x262626)
-    // camera
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
-    camera.position.set(0, 0, 10)
-    // cube
-    const geometry = new THREE.BoxGeometry(2, 2, 2)
-    const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        wireframe: true
-    })
-    const cube = new THREE.Mesh(geometry, material)
-    scene.add(cube)
-    // renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     
-    const renderer = new THREE.WebGL1Renderer()
-    renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    // rendering the scene
-    const container = document.querySelector('#threejs-container')
-    container.append(renderer.domElement)
-    renderer.render(scene, camera)
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const container = document.querySelector('#threejs-container');
+    container.append(renderer.domElement);
+    
+
+    const geometry = new THREE.SphereGeometry( 1, 1, 1 );
+    const wireframe = new THREE.WireframeGeometry( geometry );
+    const line = new THREE.LineSegments( wireframe );
+    line.material.depthTest = false;
+    line.material.opacity = 0.25;
+    line.material.transparent = true;
+    
+    scene.add( line ); 
+    camera.position.z = 5;
+    
+
+ 
+ 
+
+    function animate() {
+        requestAnimationFrame( animate );
+    
+        line.rotation.x += 0.01;
+        line.rotation.y += 0.01;
+    
+        renderer.render( scene, camera );
+    }
+    
+    animate();
+
+
+   // renderer.render(scene, camera)
     
     
     
