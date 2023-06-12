@@ -29,7 +29,8 @@ export default function init() {
     // scene.add(line);
     
     camera.position.z = 5;
-
+    createCubes(2.7,0.4,1.3
+        ,5,0.1,3,"rgb(150, 150, 150)"); //Floor
     for (let i = 0; i < 8; i++) {
         for (let k = 0; k < 5; k++) {
             let y = 0.10 + 0.60 * k;
@@ -49,9 +50,9 @@ export default function init() {
 
         renderer.render(scene, camera);
     }
-    function createCubes(x, y, z, width, height, depth) {
+    function createCubes(x, y, z, width, height, depth,color=0x00ff00) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const material = new THREE.MeshBasicMaterial({ color: color });
         const cube = new THREE.Mesh(geometry, material);
         cube.position.x = x;
         cube.position.y = y;
