@@ -28,19 +28,36 @@ export default function init() {
     camera.add(light);
 
 
+    let boxW = 2;
+    let boxPos = 6;
+    let xAmount = 10;
+    let yAmount = 10;
+    let offsetX = (xAmount*boxPos+boxW)/2;
+    let offsetY = (yAmount*boxPos+boxW)/2;
+    for (let i = 0; i < xAmount; i++) {
+        for (let k = 0; k < yAmount; k++) {
+         
+            let x = (boxW + boxPos * i)-offsetX;
+            let y = (boxW + boxPos * k)-offsetY;
+          
+            let z = -4;
+            createBox(boxW, boxW, boxW,'grey',x, z, y);
+        }
+    }
 
     createBox(4, 2, 2,'sandybrown',2,-4, 6); //brown box
-    createBox(); //grey box
+    //createBox(); //grey box
 
-    createOuterWalls();  //call functions
+    createOuterWalls(100, 10, 100);  //call functions
     loadGrab();
-    animate();
+    animate(); //anim always last
 
 
     function loadGrab() {
         // Load a glTF resource
         const loader = new GLTFLoader();
         var scale = 1;
+        // change to url (github) for pages version (?)
         loader.load('../models/grab1.glb', function (gltf) {
             var object = gltf.scene;
             object.scale.set(scale, scale, scale);
@@ -65,21 +82,30 @@ export default function init() {
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             const line = new THREE.Line(lineGeo, lineMat);
             scene.add(line);
+            console.log(scene); 
         },
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             function (error) {
-                console.log('An error happened');
+                console.log('An error happened',error);
             }
         );
     }
     function animate() {
         requestAnimationFrame(animate);
         //controls.update();
+        //const rndInt = randomIntFromInterval(1, 6)
+        //line.rotation.x += 0.01;
+        //line.rotation.y += 0.01;
         renderer.render(scene, camera);
 
     }
+    function randomIntFromInterval(min, max) { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min)
+      }
+      
+     
     function createBox(width=2,height=2,depth=2,color='gray',x=-2,y=-4,z=-6) {
         let geometry = new THREE.BoxGeometry(width, height, depth);
         let material1 = new THREE.MeshPhongMaterial({
