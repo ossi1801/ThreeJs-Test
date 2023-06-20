@@ -52,13 +52,14 @@ export default function init() {
     loadGrab();
     animate(); //anim always last
 
-
-    function loadGrab() {
+//../models/grab1.glb
+    function loadGrab(url ='../models/grab1.gltf') {
         // Load a glTF resource
         const loader = new GLTFLoader();
         var scale = 1;
         // change to url (github) for pages version (?)
-        loader.load('../models/grab1.glb', function (gltf) {
+        console.log(url); 
+        loader.load(url, function (gltf) {
             var object = gltf.scene;
             object.scale.set(scale, scale, scale);
             scene.add(object);
@@ -88,6 +89,7 @@ export default function init() {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             function (error) {
+                loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab1.gltf')
                 console.log('An error happened',error);
             }
         );
