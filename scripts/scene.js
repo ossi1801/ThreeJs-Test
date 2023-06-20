@@ -32,43 +32,48 @@ export default function init() {
     let boxPos = 6;
     let xAmount = 10;
     let yAmount = 10;
-    let offsetX = (xAmount*boxPos+boxW)/2;
-    let offsetY = (yAmount*boxPos+boxW)/2;
+    let offsetX = (xAmount * boxPos + boxW) / 2;
+    let offsetY = (yAmount * boxPos + boxW) / 2;
     for (let i = 0; i < xAmount; i++) {
         for (let k = 0; k < yAmount; k++) {
-         
-            let x = (boxW + boxPos * i)-offsetX;
-            let y = (boxW + boxPos * k)-offsetY;
-          
+
+            let x = (boxW + boxPos * i) - offsetX;
+            let y = (boxW + boxPos * k) - offsetY;
+
             let z = -4;
-            createBox(boxW, boxW, boxW,'grey',x, z, y);
+            createBox(boxW, boxW, boxW, 'grey', x, z, y);
         }
     }
 
-    createBox(4, 2, 2,'sandybrown',2,-4, 6); //brown box
-    //createBox(); //grey box
+    createBox(4, 2, 2, 'sandybrown', 2, -4, 6); //brown box
 
     createOuterWalls(100, 10, 100);  //call functions
     loadGrab();
     animate(); //anim always last
 
-//../models/grab1.glb
-    function loadGrab(url ='../models/grab1.gltf') {
+
+    function loadGrab(url = '../models/grab.gltf') {
         // Load a glTF resource
         const loader = new GLTFLoader();
+        var mixer;
+        var action;
         var scale = 1;
         // change to url (github) for pages version (?)
-        console.log(url); 
+        console.log(url);
         loader.load(url, function (gltf) {
+            console.log(gltf);
+
             var object = gltf.scene;
             object.scale.set(scale, scale, scale);
             scene.add(object);
-            console.log(gltf); 
-            // var action = mixer.clipAction( gltf.animations[ 0 ] );
-            // action.play();
+
+            mixer = new THREE.AnimationMixer(object);
+            //mixer.timeScale = -1; for reverse
+            action = mixer.clipAction(gltf.animations[0]); //why no work
+
+            action.play();
+
             // gltf.animations; // Array<THREE.AnimationClip>
-            // gltf.scene; // THREE.Group
-            // gltf.scenes; // Array<THREE.Group>
             // gltf.cameras; // Array<THREE.Camera>
             // gltf.asset; // Object
 
@@ -83,14 +88,14 @@ export default function init() {
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             const line = new THREE.Line(lineGeo, lineMat);
             scene.add(line);
-            console.log(scene); 
+            action.play();
         },
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             function (error) {
-                loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab1.gltf')
-                console.log('An error happened',error);
+                loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab.gltf')
+                console.log('An error happened', error);
             }
         );
     }
@@ -105,10 +110,10 @@ export default function init() {
     }
     function randomIntFromInterval(min, max) { // min and max included 
         return Math.floor(Math.random() * (max - min + 1) + min)
-      }
-      
-     
-    function createBox(width=2,height=2,depth=2,color='gray',x=-2,y=-4,z=-6) {
+    }
+
+
+    function createBox(width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
         let geometry = new THREE.BoxGeometry(width, height, depth);
         let material1 = new THREE.MeshPhongMaterial({
             color: color
@@ -117,7 +122,7 @@ export default function init() {
         mesh.position.set(x, y, z);
         scene.add(mesh);
     }
-    function createOuterWalls(width=20,height=10,depth=20){
+    function createOuterWalls(width = 20, height = 10, depth = 20) {
         var wallGeometry = new THREE.BoxGeometry(width, height, depth);
         var innerWallMat = new THREE.MeshPhongMaterial({
             color: 0xffffff,
