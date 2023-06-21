@@ -5,6 +5,9 @@ export default function init() {
     window.addEventListener('click', playGrabAnim);
     var renderer, scene, camera, controls, mixer, clock, model, action, grabLine;
     var endOfAnim = false;
+    var boxArray = [];
+    var nextLocation = null;
+    var speed = 0.05;
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -39,7 +42,7 @@ export default function init() {
             let y = (boxW + boxPos * k) - offsetY;
 
             let z = -4;
-            createBox(boxW, boxW, boxW, 'grey', x, z, y);
+            createNamedBox(i, k, boxW, boxW, boxW, 'grey', x, z, y);
         }
     }
 
@@ -87,16 +90,54 @@ export default function init() {
         requestAnimationFrame(animate);
         var delta = clock.getDelta();
         if (mixer) mixer.update(delta);
-        //const rndInt = randomIntFromInterval(1, 6)
-        if (grabLine != undefined) {
-            grabLine.position.x += 0.01;
-            model.scene.position.setX(grabLine.position.x);
+        if (grabLine != undefined && boxArray.length > 0) {
+            moveToNextLocation();
         }
         renderer.render(scene, camera);
 
     }
     function randomIntFromInterval(min, max) { // min and max included 
         return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+    function moveToNextLocation() {
+        if (nextLocation == null) {
+            const rndIntX = randomIntFromInterval(0, xAmount);
+            const rndIntY = randomIntFromInterval(0, yAmount);
+            let rndBoxArr = boxArray.filter(o => o.x === rndIntX && o.y === rndIntY);
+            nextLocation = rndBoxArr[0].m;
+            console.log(nextLocation);
+            console.log("Nextpos", rndIntX, rndIntY);
+            //nextLocation = ""+rndIntX+","+rndIntY; 
+        } else {
+
+            if (closeEnough()) {
+                nextLocation = null;
+                return;
+            }
+            if (nextLocation.position.x > grabLine.position.x) {
+                grabLine.position.x += speed;
+            } else if (nextLocation.position.x < grabLine.position.x) {
+                grabLine.position.x -= speed;
+            } else {
+                console.log("Achieved x");
+            }
+            model.scene.position.setX(grabLine.position.x);
+
+            //y
+            if (nextLocation.position.z > grabLine.position.z) {
+                grabLine.position.z += speed;
+            } else if (nextLocation.position.z < grabLine.position.z) {
+                grabLine.position.z -= speed;
+            } else {
+                console.log("Achieved y(z)");
+            }
+            model.scene.position.setZ(grabLine.position.z);
+
+        }
+    }
+    function closeEnough() {
+        return Math.round(Math.abs(nextLocation.position.x - grabLine.position.x)) < 2 &&
+            Math.round(Math.abs(nextLocation.position.z - grabLine.position.z)) < 2;
     }
     function playGrabAnim() {
         action = mixer.clipAction(model.animations[0]);
@@ -118,6 +159,12 @@ export default function init() {
 
         }
     }
+    function createNamedBox(xid, yid, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
+
+        let m = createBox(width, height, depth, color, x, y, z);
+        boxArray.push({ x: xid, y: yid, m: m });
+    }
+
     function createBox(width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
         let geometry = new THREE.BoxGeometry(width, height, depth);
         let material1 = new THREE.MeshPhongMaterial({
@@ -126,6 +173,7 @@ export default function init() {
         let mesh = new THREE.Mesh(geometry, material1);
         mesh.position.set(x, y, z);
         scene.add(mesh);
+        return mesh;
     }
     function createOuterWalls(width = 20, height = 10, depth = 20) {
         var wallGeometry = new THREE.BoxGeometry(width, height, depth);
