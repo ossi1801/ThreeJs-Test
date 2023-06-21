@@ -3,7 +3,7 @@ import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.j
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 export default function init() {
     window.addEventListener('click', playGrabAnim);
-    var renderer, scene, camera, controls, mixer, clock, model, action;
+    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine;
     var endOfAnim = false;
 
     renderer = new THREE.WebGLRenderer();
@@ -71,8 +71,8 @@ export default function init() {
             // points.push(new THREE.Vector3(1, 0, 0));
             // points.push(new THREE.Vector3(0, 7, 0));
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(lineGeo, lineMat);
-            scene.add(line);
+            grabLine = new THREE.Line(lineGeo, lineMat);
+            scene.add(grabLine);
         },
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -88,14 +88,16 @@ export default function init() {
         var delta = clock.getDelta();
         if (mixer) mixer.update(delta);
         //const rndInt = randomIntFromInterval(1, 6)
-        //line.rotation.x += 0.01;
-        //line.rotation.y += 0.01;
+        if (grabLine != undefined) {
+            grabLine.position.x += 0.01;
+            model.scene.position.setX(grabLine.position.x);
+        }
         renderer.render(scene, camera);
 
     }
     function randomIntFromInterval(min, max) { // min and max included 
         return Math.floor(Math.random() * (max - min + 1) + min)
-    } 
+    }
     function playGrabAnim() {
         action = mixer.clipAction(model.animations[0]);
         action.paused = false;
