@@ -107,7 +107,7 @@ export default function init() {
             const rndIntX = randomIntFromInterval(0, xAmount);
             const rndIntY = randomIntFromInterval(0, yAmount);
             let rndBoxArr = boxArray.filter(o => o.x === rndIntX && o.y === rndIntY);
-            if(rndBoxArr==undefined) return;
+            if(rndBoxArr==undefined || rndBoxArr[0]==undefined) return;
             nextLocation = rndBoxArr[0].m;
             nextLocation.material.color.set("red");
             console.log(nextLocation);
