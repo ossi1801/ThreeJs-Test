@@ -2,12 +2,14 @@ import * as THREE from '../three.js-master/build/three.module.js';
 import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 export default function init() {
-    window.addEventListener('click', playGrabAnim);
+    //window.addEventListener('click', playGrabAnim); 
     var renderer, scene, camera, controls, mixer, clock, model, action, grabLine;
     var endOfAnim = false;
     var boxArray = [];
     var nextLocation = null;
     var speed = 0.05;
+    var goingUp = false;
+    var grabAnimSpeed = 1.5;
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -76,6 +78,7 @@ export default function init() {
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             grabLine = new THREE.Line(lineGeo, lineMat);
             scene.add(grabLine);
+            console.log(grabLine.position.y); 
         },
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -104,16 +107,29 @@ export default function init() {
             const rndIntX = randomIntFromInterval(0, xAmount);
             const rndIntY = randomIntFromInterval(0, yAmount);
             let rndBoxArr = boxArray.filter(o => o.x === rndIntX && o.y === rndIntY);
+            if(rndBoxArr==undefined) return;
             nextLocation = rndBoxArr[0].m;
+            nextLocation.material.color.set("red");
             console.log(nextLocation);
+            console.log(grabLine.position.y); 
             console.log("Nextpos", rndIntX, rndIntY);
-            //nextLocation = ""+rndIntX+","+rndIntY; 
         } else {
 
             if (closeEnough()) {
+                if(goingUp==false && lowerGrabAndReturn()==false ) {                         
+                    return;
+                }else if(liftGrabAndReturn()==false){              
+                    goingUp = true;
+                    return;
+                }
+                goingUp=false
+                nextLocation.material.color.set("gray");
                 nextLocation = null;
                 return;
             }
+
+
+            //move to x
             if (nextLocation.position.x > grabLine.position.x) {
                 grabLine.position.x += speed;
             } else if (nextLocation.position.x < grabLine.position.x) {
@@ -122,22 +138,40 @@ export default function init() {
                 console.log("Achieved x");
             }
             model.scene.position.setX(grabLine.position.x);
-
-            //y
+           //move to z
             if (nextLocation.position.z > grabLine.position.z) {
                 grabLine.position.z += speed;
             } else if (nextLocation.position.z < grabLine.position.z) {
                 grabLine.position.z -= speed;
             } else {
-                console.log("Achieved y(z)");
+                console.log("Achieved (z)");
             }
             model.scene.position.setZ(grabLine.position.z);
 
+
+
         }
     }
+    function lowerGrabAndReturn(){
+        if(Math.round(Math.abs(nextLocation.position.y - grabLine.position.y)) < 2)return true;
+        else{
+            playGrabAnim();
+            grabLine.position.y -= speed/2;
+            model.scene.position.setY(grabLine.position.y);
+            return false;
+        }       
+    }
+    function liftGrabAndReturn(){
+        if(1<= grabLine.position.y)return true;
+        else{
+            grabLine.position.y += speed/2;
+            model.scene.position.setY(grabLine.position.y);
+            return false;
+        }       
+    }
     function closeEnough() {
-        return Math.round(Math.abs(nextLocation.position.x - grabLine.position.x)) < 2 &&
-            Math.round(Math.abs(nextLocation.position.z - grabLine.position.z)) < 2;
+        return Math.round(Math.abs(nextLocation.position.x - grabLine.position.x)) < 1 &&
+            Math.round(Math.abs(nextLocation.position.z - grabLine.position.z)) < 1;
     }
     function playGrabAnim() {
         action = mixer.clipAction(model.animations[0]);
@@ -147,16 +181,13 @@ export default function init() {
             if (action.time === 0) {
                 action.time = action.getClip().duration;
             }
-            action.timeScale = -1;
-            //action.play();
+            action.timeScale = -grabAnimSpeed;
         } else {
-            action.timeScale = 1;
+            action.timeScale = grabAnimSpeed;
         }
         endOfAnim = !endOfAnim;
         if (action !== null) {
-            //action.stop();
             action.play();
-
         }
     }
     function createNamedBox(xid, yid, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
