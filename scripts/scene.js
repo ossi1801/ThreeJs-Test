@@ -3,7 +3,7 @@ import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.j
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 export default function init() {
     //window.addEventListener('click', playGrabAnim); 
-    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine;
+    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,br1,br2;
     var endOfAnim = false;
     var boxArray = [];
     var nextLocation = null;
@@ -19,7 +19,7 @@ export default function init() {
     clock = new THREE.Clock(); //clock for anims
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(20, 20, 20);
+    camera.position.set(120, 50, 20);
     scene.add(camera); // required, since adding light as child of camera
     controls = new OrbitControls(camera, renderer.domElement);    // controls
     controls.maxPolarAngle = Math.PI / 2; //limit y-xis (can't roll to below scene)
@@ -48,10 +48,13 @@ export default function init() {
         }
     }
 
-    createBox(4, 2, 2, 'sandybrown', 2, -4, 6); //brown box
+    //createBox(4, 2, 2, 'sandybrown', 2, -4, 6); //brown box
 
     createOuterWalls(100, 10, 100);  //call functions
     loadGrab();
+    br1= createBox(1,1,100,"#f9b418",-2,6,0);
+    br2= createBox(1,1,100,"#f9b418",2,6,0);
+    //br2= createBox(2,2,100);
     animate(); //anim always last
 
 
@@ -73,8 +76,8 @@ export default function init() {
             const points = [];
             points.push(new THREE.Vector3(0, 2, 0));
             points.push(new THREE.Vector3(0, 7, 0));
-            // points.push(new THREE.Vector3(1, 0, 0));
-            // points.push(new THREE.Vector3(0, 7, 0));
+            
+            
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             grabLine = new THREE.Line(lineGeo, lineMat);
             scene.add(grabLine);
@@ -132,8 +135,12 @@ export default function init() {
             //move to x
             if (nextLocation.position.x > grabLine.position.x) {
                 grabLine.position.x += speed;
+                br1.position.x += speed;
+                br2.position.x += speed;
             } else if (nextLocation.position.x < grabLine.position.x) {
                 grabLine.position.x -= speed;
+                br1.position.x -= speed;
+                br2.position.x -= speed;
             } else {
                 console.log("Achieved x");
             }
@@ -141,11 +148,14 @@ export default function init() {
            //move to z
             if (nextLocation.position.z > grabLine.position.z) {
                 grabLine.position.z += speed;
+                
             } else if (nextLocation.position.z < grabLine.position.z) {
                 grabLine.position.z -= speed;
+                
             } else {
                 console.log("Achieved (z)");
             }
+            //br1.scene.position.setZ(grabLine.position.z);
             model.scene.position.setZ(grabLine.position.z);
 
 
