@@ -1,9 +1,33 @@
 import * as THREE from '../three.js-master/build/three.module.js';
 import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
+
 export default function init() {
-    //window.addEventListener('click', playGrabAnim); 
-    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,br1,br2,tr;
+    class Bridge {
+        constructor(width, height, depth, color, x, y, z) {
+            let tpWidth = width * 2;
+            let tpHeight = width * 0.2;
+            let tY = y + height/2;
+            let bY = y - height/2;
+            this.left1 = createBox(tpWidth, tpHeight, depth, color, -x, tY, z); //left top
+            this.left2 = createBox(width, height, depth, color, -x, y, z); //left mid
+            this.left3 = createBox(tpWidth, tpHeight, depth, color, -x, bY, z); //left bot
+            this.right1 = createBox(tpWidth, tpHeight, depth, color, x, tY, z); //right top
+            this.right2 = createBox(width, height, depth, color, x, y, z); //right mid
+            this.right3 = createBox(tpWidth, tpHeight, depth, color, x, bY, z); //right bot         
+            this.arr = [this.left1, this.left2, this.left3, this.right1, this.right2, this.right3];
+        }
+        moveX(Direction = "+", speed = 0.05) {
+            if (Direction == "+") {
+                this.arr.forEach(o => o.position.x += speed);
+            }
+            else {
+                this.arr.forEach(o => o.position.x -= speed);
+            }
+        }
+    }
+
+    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,bridge,tr;
     var endOfAnim = false;
     var boxArray = [];
     var nextLocation = null;
@@ -51,8 +75,7 @@ export default function init() {
     createOuterWalls(100, 10, 100);  //call functions
     loadGrab();
     tr = createBox(3,1,2,"lightblue",0,6,0); //Trolley
-    br1= createBox(1,1,100,"#f9b418",-2,6,0); //yellow I bars
-    br2= createBox(1,1,100,"#f9b418",2,6,0);
+    bridge =new Bridge(0.5,1,100,"#f9b418",-2,6,0);
     animate(); //anim always last
 
 
@@ -134,17 +157,16 @@ export default function init() {
             if (nextLocation.position.x > grabLine.position.x) {
                 grabLine.position.x += speed;
                 tr.position.x += speed;
-                br1.position.x += speed;
-                br2.position.x += speed;
+                bridge.moveX("+",speed);
             } else if (nextLocation.position.x < grabLine.position.x) {
                 grabLine.position.x -= speed;
                 tr.position.x -= speed;
-                br1.position.x -= speed;
-                br2.position.x -= speed;
+                bridge.moveX("-",speed);
             } else {
                 console.log("Achieved x");
             }
             model.scene.position.setX(grabLine.position.x);
+
            //move to z
             if (nextLocation.position.z > grabLine.position.z) {
                 grabLine.position.z += speed;
@@ -156,11 +178,8 @@ export default function init() {
                 
             } else {
                 console.log("Achieved (z)");
-            }
-            //br1.scene.position.setZ(grabLine.position.z);
+            }           
             model.scene.position.setZ(grabLine.position.z);
-
-
 
         }
     }
@@ -204,6 +223,7 @@ export default function init() {
             action.play();
         }
     }
+
     function createNamedBox(xid, yid, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
         let m = createBox(width, height, depth, color, x, y, z);
         boxArray.push({ x: xid, y: yid, m: m });
