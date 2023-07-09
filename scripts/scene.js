@@ -3,7 +3,7 @@ import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.j
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 export default function init() {
     //window.addEventListener('click', playGrabAnim); 
-    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,br1,br2;
+    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,br1,br2,tr;
     var endOfAnim = false;
     var boxArray = [];
     var nextLocation = null;
@@ -48,13 +48,11 @@ export default function init() {
         }
     }
 
-    //createBox(4, 2, 2, 'sandybrown', 2, -4, 6); //brown box
-
     createOuterWalls(100, 10, 100);  //call functions
     loadGrab();
-    br1= createBox(1,1,100,"#f9b418",-2,6,0);
+    tr = createBox(3,1,2,"lightblue",0,6,0); //Trolley
+    br1= createBox(1,1,100,"#f9b418",-2,6,0); //yellow I bars
     br2= createBox(1,1,100,"#f9b418",2,6,0);
-    //br2= createBox(2,2,100);
     animate(); //anim always last
 
 
@@ -75,13 +73,12 @@ export default function init() {
             const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
             const points = [];
             points.push(new THREE.Vector3(0, 2, 0));
-            points.push(new THREE.Vector3(0, 7, 0));
-            
-            
+            points.push(new THREE.Vector3(0, 6, 0));         
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             grabLine = new THREE.Line(lineGeo, lineMat);
             scene.add(grabLine);
-            console.log(grabLine.position.y); 
+            model.scene.position.setZ(grabLine.position.z);
+
         },
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -113,9 +110,10 @@ export default function init() {
             if(rndBoxArr==undefined || rndBoxArr[0]==undefined) return;
             nextLocation = rndBoxArr[0].m;
             nextLocation.material.color.set("red");
-            console.log(nextLocation);
-            console.log(grabLine.position.y); 
+            //console.log(nextLocation);
+            //console.log(grabLine.position.y); 
             console.log("Nextpos", rndIntX, rndIntY);
+             
         } else {
 
             if (closeEnough()) {
@@ -135,10 +133,12 @@ export default function init() {
             //move to x
             if (nextLocation.position.x > grabLine.position.x) {
                 grabLine.position.x += speed;
+                tr.position.x += speed;
                 br1.position.x += speed;
                 br2.position.x += speed;
             } else if (nextLocation.position.x < grabLine.position.x) {
                 grabLine.position.x -= speed;
+                tr.position.x -= speed;
                 br1.position.x -= speed;
                 br2.position.x -= speed;
             } else {
@@ -148,9 +148,11 @@ export default function init() {
            //move to z
             if (nextLocation.position.z > grabLine.position.z) {
                 grabLine.position.z += speed;
+                tr.position.z += speed;
                 
             } else if (nextLocation.position.z < grabLine.position.z) {
                 grabLine.position.z -= speed;
+                tr.position.z -= speed;
                 
             } else {
                 console.log("Achieved (z)");
@@ -167,14 +169,16 @@ export default function init() {
         else{
             playGrabAnim();
             grabLine.position.y -= speed/2;
+            grabLine.scale.y += speed/10;
             model.scene.position.setY(grabLine.position.y);
             return false;
         }       
     }
     function liftGrabAndReturn(){
         if(1<= grabLine.position.y)return true;
-        else{
+        else{    
             grabLine.position.y += speed/2;
+            grabLine.scale.y -= speed/10;
             model.scene.position.setY(grabLine.position.y);
             return false;
         }       
@@ -201,7 +205,6 @@ export default function init() {
         }
     }
     function createNamedBox(xid, yid, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
-
         let m = createBox(width, height, depth, color, x, y, z);
         boxArray.push({ x: xid, y: yid, m: m });
     }
