@@ -1,5 +1,6 @@
 import * as THREE from '../three.js-master/build/three.module.js';
 import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.js'
+import * as BufferGeometryUtils from '../three.js-master/examples/jsm/utils/BufferGeometryUtils.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 
 export default function init() {
@@ -7,22 +8,39 @@ export default function init() {
         constructor(width, height, depth, color, x, y, z) {
             let tpWidth = width * 2;
             let tpHeight = width * 0.2;
-            let tY = y + height/2;
-            let bY = y - height/2;
-            this.left1 = createBox(tpWidth, tpHeight, depth, color, -x, tY, z); //left top
-            this.left2 = createBox(width, height, depth, color, -x, y, z); //left mid
-            this.left3 = createBox(tpWidth, tpHeight, depth, color, -x, bY, z); //left bot
-            this.right1 = createBox(tpWidth, tpHeight, depth, color, x, tY, z); //right top
-            this.right2 = createBox(width, height, depth, color, x, y, z); //right mid
-            this.right3 = createBox(tpWidth, tpHeight, depth, color, x, bY, z); //right bot         
-            this.arr = [this.left1, this.left2, this.left3, this.right1, this.right2, this.right3];
+            let tY = y + height / 2;
+            let bY = y - height / 2;
+            this.color = color;
+            this.left1 = this.createGeom(tpWidth, tpHeight, depth, -x, tY, z); //left top
+            this.left2 = this.createGeom(width, height, depth, -x, y, z); //left mid
+            this.left3 = this.createGeom(tpWidth, tpHeight, depth, -x, bY, z); //left bot
+            this.right1 = this.createGeom(tpWidth, tpHeight, depth, x, tY, z); //right top
+            this.right2 = this.createGeom(width, height, depth, x, y, z); //right mid
+            this.right3 = this.createGeom(tpWidth, tpHeight, depth, x, bY, z); //right bot         
+            this.arr = [this.left1, this.left2, this.left3, this.right1, this.right2, this.right3]; //TODO MERGE TO ONE MESH INSTEAD OF ARRAY?
+            this.merge();
+        }
+        createGeom(width = 2, height = 2, depth = 2, x = -2, y = -4, z = -6) {
+            let newGeom = new THREE.BoxGeometry(width, height, depth); // buffer geometry
+            newGeom.translate(x, y, z); // set position 
+            return newGeom;
+        }
+        merge() {
+            let mergedBoxes = BufferGeometryUtils.mergeGeometries(this.arr); // merged geometries 
+            mergedBoxes.computeBoundingBox();
+            let material = new THREE.MeshPhongMaterial({
+                color: this.color
+            });
+            let mesh = new THREE.Mesh(mergedBoxes, material);
+            scene.add(mesh); //Add merged bridge mesh to scene only
+            this.merged = mesh;
         }
         moveX(Direction = "+", speed = 0.05) {
             if (Direction == "+") {
-                this.arr.forEach(o => o.position.x += speed);
+                this.merged.position.x += speed;
             }
             else {
-                this.arr.forEach(o => o.position.x -= speed);
+                this.merged.position.x -= speed;
             }
         }
     }
