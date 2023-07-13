@@ -2,6 +2,7 @@ import * as THREE from '../three.js-master/build/three.module.js';
 import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.js'
 import * as BufferGeometryUtils from '../three.js-master/examples/jsm/utils/BufferGeometryUtils.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
+import { getColor, randomIntFromInterval } from './Extender.js';
 
 export default function init() {
     class Bridge {
@@ -45,7 +46,7 @@ export default function init() {
         }
     }
 
-    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine,bridge,tr;
+    var renderer, scene, camera, controls, mixer, clock, model, action, grabLine, bridge, tr,originalColor;
     var endOfAnim = false;
     var boxArray = [];
     var nextLocation = null;
@@ -74,9 +75,9 @@ export default function init() {
 
 
     let boxW = 2;
-    let boxPos = 6;
-    let xAmount = 10;
-    let yAmount = 10;
+    let boxPos = 3;
+    let xAmount = 50;
+    let yAmount = 16;
     let offsetX = (xAmount * boxPos + boxW) / 2;
     let offsetY = (yAmount * boxPos + boxW) / 2;
     for (let i = 0; i < xAmount; i++) {
@@ -85,15 +86,19 @@ export default function init() {
             let x = (boxW + boxPos * i) - offsetX;
             let y = (boxW + boxPos * k) - offsetY;
 
-            let z = -4;
-            createNamedBox(i, k, boxW, boxW, boxW, 'grey', x, z, y);
+            let min = 1;
+            let max = 6;
+            let surfaceHeight = randomIntFromInterval(min, max);
+            let surfaceColor = getColor(min, max, surfaceHeight);
+            let z = surfaceHeight / 2 - 4;
+            createNamedBox(i, k, boxW, surfaceHeight, boxW, surfaceColor, x, z, y); //'grey'
         }
     }
 
-    createOuterWalls(100, 10, 100);  //call functions
+    createOuterWalls(150, 10, 80);  //call functions
     loadGrab();
-    tr = createBox(3,1,2,"lightblue",0,6,0); //Trolley
-    bridge =new Bridge(0.5,1,100,"#f9b418",-2,6,0);
+    tr = createBox(3, 1, 2, "lightblue", 0, 6, 0); //Trolley
+    bridge = new Bridge(0.5, 1, 100, "#f9b418", -2, 6, 0);
     animate(); //anim always last
 
 
@@ -114,7 +119,7 @@ export default function init() {
             const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
             const points = [];
             points.push(new THREE.Vector3(0, 2, 0));
-            points.push(new THREE.Vector3(0, 6, 0));         
+            points.push(new THREE.Vector3(0, 6, 0));
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
             grabLine = new THREE.Line(lineGeo, lineMat);
             scene.add(grabLine);
@@ -140,32 +145,32 @@ export default function init() {
         renderer.render(scene, camera);
 
     }
-    function randomIntFromInterval(min, max) { // min and max included 
-        return Math.floor(Math.random() * (max - min + 1) + min)
-    }
+
+
+
     function moveToNextLocation() {
         if (nextLocation == null) {
             const rndIntX = randomIntFromInterval(0, xAmount);
             const rndIntY = randomIntFromInterval(0, yAmount);
             let rndBoxArr = boxArray.filter(o => o.x === rndIntX && o.y === rndIntY);
-            if(rndBoxArr==undefined || rndBoxArr[0]==undefined) return;
-            nextLocation = rndBoxArr[0].m;
+            if (rndBoxArr == undefined || rndBoxArr[0] == undefined) return;
+            nextLocation = rndBoxArr[0].m; 
+            originalColor = nextLocation.material.color.clone();//TODO MAKE ORIGINAL COLOR PARH OF RNDBOX OBJECTS
             nextLocation.material.color.set("red");
-            //console.log(nextLocation);
-            //console.log(grabLine.position.y); 
             console.log("Nextpos", rndIntX, rndIntY);
-             
+
         } else {
 
             if (closeEnough()) {
-                if(goingUp==false && lowerGrabAndReturn()==false ) {                         
+                if (goingUp == false && lowerGrabAndReturn() == false) {
                     return;
-                }else if(liftGrabAndReturn()==false){              
+                } else if (liftGrabAndReturn() == false) {
                     goingUp = true;
                     return;
                 }
-                goingUp=false
-                nextLocation.material.color.set("gray");
+                goingUp = false;
+                //console.log(originalColor); 
+                nextLocation.material.color.set(originalColor);
                 nextLocation = null;
                 return;
             }
@@ -175,50 +180,50 @@ export default function init() {
             if (nextLocation.position.x > grabLine.position.x) {
                 grabLine.position.x += speed;
                 tr.position.x += speed;
-                bridge.moveX("+",speed);
+                bridge.moveX("+", speed);
             } else if (nextLocation.position.x < grabLine.position.x) {
                 grabLine.position.x -= speed;
                 tr.position.x -= speed;
-                bridge.moveX("-",speed);
+                bridge.moveX("-", speed);
             } else {
                 console.log("Achieved x");
             }
             model.scene.position.setX(grabLine.position.x);
 
-           //move to z
+            //move to z
             if (nextLocation.position.z > grabLine.position.z) {
                 grabLine.position.z += speed;
                 tr.position.z += speed;
-                
+
             } else if (nextLocation.position.z < grabLine.position.z) {
                 grabLine.position.z -= speed;
                 tr.position.z -= speed;
-                
+
             } else {
                 console.log("Achieved (z)");
-            }           
+            }
             model.scene.position.setZ(grabLine.position.z);
 
         }
     }
-    function lowerGrabAndReturn(){
-        if(Math.round(Math.abs(nextLocation.position.y - grabLine.position.y)) < 2)return true;
-        else{
+    function lowerGrabAndReturn() {
+        if (Math.round(Math.abs(nextLocation.position.y - grabLine.position.y)) < 2) return true;
+        else {
             playGrabAnim();
-            grabLine.position.y -= speed/2;
-            grabLine.scale.y += speed/10;
+            grabLine.position.y -= speed / 2;
+            grabLine.scale.y += speed / 10;
             model.scene.position.setY(grabLine.position.y);
             return false;
-        }       
+        }
     }
-    function liftGrabAndReturn(){
-        if(1<= grabLine.position.y)return true;
-        else{    
-            grabLine.position.y += speed/2;
-            grabLine.scale.y -= speed/10;
+    function liftGrabAndReturn() {
+        if (1 <= grabLine.position.y) return true;
+        else {
+            grabLine.position.y += speed / 2;
+            grabLine.scale.y -= speed / 10;
             model.scene.position.setY(grabLine.position.y);
             return false;
-        }       
+        }
     }
     function closeEnough() {
         return Math.round(Math.abs(nextLocation.position.x - grabLine.position.x)) < 1 &&
@@ -249,10 +254,10 @@ export default function init() {
 
     function createBox(width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
         let geometry = new THREE.BoxGeometry(width, height, depth);
-        let material1 = new THREE.MeshPhongMaterial({
+        let material = new THREE.MeshPhongMaterial({
             color: color
         });
-        let mesh = new THREE.Mesh(geometry, material1);
+        let mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(x, y, z);
         scene.add(mesh);
         return mesh;
