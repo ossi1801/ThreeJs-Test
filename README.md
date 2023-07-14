@@ -1,25 +1,23 @@
 # Three js tests 
 
-three.js projects
+- Three.js tests
+- [Storage](https://ossi1801.github.io/ThreeJs-Test/)
 
 ## Features
-Cube storage with animated moving crane
-
-& Some 3d stuff i guess
-
-
-![]()
+- Cube storage with animated moving crane
+- Cubes height indicated with color gradiant
+- Some other 3d stuff i guess
 
 
-![](images/storage.png)
+![https://ossi1801.github.io/ThreeJs-Test/](images/grabopen.gif)
 
-> Yes
 
-> No 
+![https://ossi1801.github.io/ThreeJs-Test/](images/storage.png)
 
-> Yes
 
 ## Requirements
 
 Three.js npm or clone this repo and use prebuilt npm packages
+
+> Tested with firefox & chrome
 

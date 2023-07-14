@@ -65,7 +65,7 @@ export default function init() {
         requestAnimationFrame(animate);
         var delta = clock.getDelta();
         if (grab.mixer) grab.mixer.update(delta);
-        if (grab.grabLine != undefined && boxArray.length > 0) {
+        if (grab.mesh != undefined && boxArray.length > 0) {
             moveToNextLocation();
         }
         renderer.render(scene, camera);
@@ -102,11 +102,11 @@ export default function init() {
                 return;
             }
             //move to x
-            if (nextLocation.position.x > grab.grabLine.position.x) {
+            if (nextLocation.position.x > grab.mesh.position.x) {
                 grab.moveX("+", speed);
                 trolley.moveX("+", speed);
                 bridge.moveX("+", speed);
-            } else if (nextLocation.position.x < grab.grabLine.position.x) {
+            } else if (nextLocation.position.x < grab.mesh.position.x) {
                 grab.moveX("-", speed);
                 trolley.moveX("-", speed);
                 bridge.moveX("-", speed);
@@ -114,10 +114,10 @@ export default function init() {
                 console.log("Achieved x");
             }
             //move to z
-            if (nextLocation.position.z > grab.grabLine.position.z) {
+            if (nextLocation.position.z > grab.mesh.position.z) {
                 grab.moveZ("+", speed);
                 trolley.moveZ("+", speed);
-            } else if (nextLocation.position.z < grab.grabLine.position.z) {
+            } else if (nextLocation.position.z < grab.mesh.position.z) {
                 grab.moveZ("-", speed);
                 trolley.moveZ("-", speed);
             } else {
@@ -127,7 +127,7 @@ export default function init() {
         }
     }
     function lowerGrabAndReturn() {
-        if (Math.round(Math.abs(nextLocation.position.y - grab.grabLine.position.y)) < 2) return true;
+        if (Math.round(Math.abs(nextLocation.position.y - grab.mesh.position.y)) < 2) return true;
         else {
             grab.playGrabAnim();
             grab.moveY("-", speed);
@@ -135,15 +135,15 @@ export default function init() {
         }
     }
     function liftGrabAndReturn() {
-        if (1 <= grab.grabLine.position.y) return true;
+        if (1 <= grab.mesh.position.y) return true;
         else {
             grab.moveY("+", speed);
             return false;
         }
     }
     function closeEnough() {
-        return Math.round(Math.abs(nextLocation.position.x - grab.grabLine.position.x)) < 1 &&
-            Math.round(Math.abs(nextLocation.position.z - grab.grabLine.position.z)) < 1;
+        return Math.round(Math.abs(nextLocation.position.x - grab.mesh.position.x)) < 1 &&
+            Math.round(Math.abs(nextLocation.position.z - grab.mesh.position.z)) < 1;
     }
 
 
