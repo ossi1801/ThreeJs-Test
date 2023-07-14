@@ -3,14 +3,15 @@
 three.js projects
 
 ## Features
+Cube storage with animated moving crane
 
-Some 3d stuff i guess
+& Some 3d stuff i guess
 
 
 ![]()
 
 
-![](images/snipinit.gif)
+![](images/storage.png)
 
 > Yes
 
@@ -20,5 +21,5 @@ Some 3d stuff i guess
 
 ## Requirements
 
-n/a
+Three.js npm or clone this repo and use prebuilt npm packages
 

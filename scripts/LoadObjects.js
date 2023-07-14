@@ -3,7 +3,7 @@ import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.j
 import * as BufferGeometryUtils from '../three.js-master/examples/jsm/utils/BufferGeometryUtils.js';
 
 export class Bridge {
-    constructor(scene,width, height, depth, color, x, y, z) {
+    constructor(scene, width, height, depth, color, x, y, z) {
         let tpWidth = width * 2;
         let tpHeight = width * 0.2;
         let tY = y + height / 2;
@@ -42,8 +42,8 @@ export class Bridge {
         }
     }
 }
-export class Trolley{
-    constructor(scene,width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {        
+export class Trolley {
+    constructor(scene, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
         this.scene = scene;
         this.width = width;
         this.height = height;
@@ -54,15 +54,15 @@ export class Trolley{
         this.z = z;
         this.mesh = null;
         this.loadTrolley();
-       
+
     }
-    loadTrolley(){
+    loadTrolley() {
         let geometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
         let material = new THREE.MeshPhongMaterial({
             color: this.color
         });
         this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.set(this.x,this. y, this.z);
+        this.mesh.position.set(this.x, this.y, this.z);
         this.scene.add(this.mesh);
     }
     moveX(Direction = "+", speed = 0.05) {
@@ -83,8 +83,8 @@ export class Trolley{
     }
 }
 
-export  class Grab {
-    constructor(scene) {        
+export class Grab {
+    constructor(scene) {
         this.scene = scene;
         this.mixer = null;
         this.action = null;
@@ -98,7 +98,7 @@ export  class Grab {
         // Load a glTF resource
         console.log(url);
         const loader = new GLTFLoader();
-        loader.load(url, function (gltf) { 
+        loader.load(url, function (gltf) {
             this.model = gltf;
             this.mixer = new THREE.AnimationMixer(this.model.scene);
             this.action = this.mixer.clipAction(gltf.animations[0]);
@@ -119,7 +119,7 @@ export  class Grab {
             }.bind(this)
         );
     }
-    loadGrabLine(){
+    loadGrabLine() {
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
         const points = [];
         points.push(new THREE.Vector3(0, 2, 0));
@@ -132,37 +132,33 @@ export  class Grab {
     moveX(Direction = "+", speed = 0.05) {
         if (Direction == "+") {
             this.grabLine.position.x += speed;
-            //this.tr.position.x += speed;
         }
         else {
             this.grabLine.position.x -= speed;
-            //this.tr.position.x -= speed;
         }
         this.model.scene.position.setX(this.grabLine.position.x);
     }
     moveZ(Direction = "+", speed = 0.05) {
         if (Direction == "+") {
             this.grabLine.position.z += speed;
-            //this.tr.position.z += speed;
         }
         else {
             this.grabLine.position.z -= speed;
-            //this.tr.position.z -= speed;
         }
         this.model.scene.position.setZ(this.grabLine.position.z);
     }
     moveY(Direction = "+", speed = 0.05) {
         if (Direction == "+") {//down
-            this.grabLine.position.y += speed /2;
+            this.grabLine.position.y += speed / 2;
             this.grabLine.scale.y -= speed / 10;
         }
         else { //lift
-            this.grabLine.position.y -= speed/2;
+            this.grabLine.position.y -= speed / 2;
             this.grabLine.scale.y += speed / 10;
         }
         this.model.scene.position.setY(this.grabLine.position.y);
     }
-    playGrabAnim() { 
+    playGrabAnim() {
         this.action = this.mixer.clipAction(this.model.animations[0]);
         this.action.paused = false;
         this.action.setLoop(THREE.LoopOnce);
@@ -179,6 +175,4 @@ export  class Grab {
             this.action.play();
         }
     }
-    
-
 }
