@@ -1,7 +1,8 @@
 import * as THREE from '../three.js-master/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
+import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
 //TODO IMPORT FROM IMPORT MAP 
-import { Bridge,Trolley, Grab } from './LoadObjects.js';
+import { Bridge,Trolley, Grab,TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval } from './Extender.js';
 
 export default function init() {
@@ -10,7 +11,6 @@ export default function init() {
     var nextLocation = null;
     var speed = 0.05;
     var goingUp = false;
-
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -57,6 +57,11 @@ export default function init() {
     trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0); 
     grab = new Grab(scene);
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
+
+    //Text object
+    let textTest = new TextDraw(scene);
+    textTest.drawText("Storage",0,30,0);
+
     animate(); //anim always last
 
 
@@ -95,7 +100,6 @@ export default function init() {
                     return;
                 }
                 goingUp = false;
-
                 //console.log(originalColor); 
                 nextLocation.material.color.set(originalColor);
                 nextLocation = null;

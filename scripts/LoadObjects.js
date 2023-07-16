@@ -1,6 +1,8 @@
 import * as THREE from '../three.js-master/build/three.module.js';
 import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.js';
 import * as BufferGeometryUtils from '../three.js-master/examples/jsm/utils/BufferGeometryUtils.js';
+import { TextGeometry } from '../three.js-master/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from '../three.js-master/examples/jsm/loaders/FontLoader.js';
 
 class AnimatedObject {
     constructor(scene) {
@@ -162,6 +164,67 @@ export class Grab extends AnimatedObject {
         if (this.action !== null) {
             this.action.play();
         }
+    }
+
+}
+
+export class TextDraw {
+
+    constructor(scene, fontJson = "../three.js-master/examples/fonts/helvetiker_regular.typeface.json") {
+        this.scene = scene;
+        this.fontJson = fontJson;
+        this.geometry = null;
+        this.material = null;
+        this.mesh = null;
+        this.font = null;
+        this.#loadFont();
+    }
+    async drawText(text,x, y, z,size = 10, height = 5, bevelThickness = 1, color = 0xff0000, specular = 0xffffff) {
+        this.text = text;
+        this.size = size;
+        this.height = height;
+        this.bevelThickness = bevelThickness;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.color = color;
+        this.specular = specular;
+
+        if (this.font != null && this.font != undefined) {
+            this.#draw();
+        }
+        else {
+            this.font = await this.#ld();
+            if (this.font != null && this.font != undefined) {
+                this.#draw();
+            } else {
+                console.error("Font not defined");
+            }
+        }
+    }
+    #draw() {
+        this.geometry = new TextGeometry(this.text, {
+            font: this.font,
+            size: this.size,
+            height: this.height,
+            curveSegments: 12,
+            bevelEnabled: true,
+            bevelThickness: this.bevelThickness,
+            bevelSize: this.bevelThickness,
+            bevelOffset: 0,
+            bevelSegments: 5
+        });
+        this.material = new THREE.MeshPhongMaterial({ color: this.color, specular: this.color });
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.scene.add(this.mesh);
+        this.mesh.position.set(this.x,this.y,this.z);
+    }
+    async #loadFont() { this.font = await this.#ld(); }
+    #ld() {
+        const loader = new FontLoader();
+        return new Promise((resolve, reject) => {
+            loader.load(this.fontJson, resolve, undefined, reject)
+        });
     }
 }
 
