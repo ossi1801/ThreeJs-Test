@@ -23,6 +23,7 @@ export function randomIntFromInterval(min, max) {
 }
 
 
+//If not async will not work
 export async function getUrlContent(url = "") {
     let baseUrl = "../";
     let ghUrl = "https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/";
@@ -43,20 +44,16 @@ export async function getUrlContent(url = "") {
     }
 
 }
-//TODO FIX FAKE TRUE YIELDS
+//If not async will not work
 async function UrlExists(url) {
     try {
       const response = await fetch(url, {
         method: 'HEAD',
         cache: 'no-cache'
       });
-      console.log(response.url); 
-      console.log(response); 
-      console.log(response.status);
       return response.ok;
   
     } catch(error) {
-      // console.log(error);
       return false;
     }
   }

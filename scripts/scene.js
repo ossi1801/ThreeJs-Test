@@ -3,9 +3,9 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
 //TODO IMPORT FROM IMPORT MAP 
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
-import { getColor, randomIntFromInterval, getUrlContent } from './Extender.js';
+import { getColor, randomIntFromInterval } from './Extender.js';
 
-export default async function init() {
+export default function init() {
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
     var nextLocation = null;
@@ -59,7 +59,7 @@ export default async function init() {
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
 
     //Text object
-    let font = await getUrlContent("three.js-master/examples/fonts/helvetiker_regular.typeface.json");;
+    let font = "three.js-master/examples/fonts/helvetiker_regular.typeface.json";
     let textTest = new TextDraw(scene, font);
     textTest.drawText("Storage", 0, 30, 0);
 

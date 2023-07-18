@@ -114,7 +114,8 @@ export class Grab extends AnimatedObject {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             function (error) {
-                this.loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab.gltf'); // This is useless (?)
+                //this.loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab.gltf');
+                // This is useless with new code (?)
                 console.log('An error happened', error);
             }.bind(this)
         );
@@ -177,7 +178,8 @@ export class TextDraw {
         this.material = null;
         this.mesh = null;
         this.font = null;
-        this.#loadFont();
+        (async () => { this.#loadFont(await getUrlContent(fontJson));  })();      
+        //this.#loadFont();
     }
     async drawText(text, x, y, z, size = 10, height = 5, bevelThickness = 1, color = 0xff0000, specular = 0xffffff) {
         this.text = text;
