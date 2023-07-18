@@ -99,7 +99,7 @@ export class Grab extends AnimatedObject {
     }
     loadGrab(url = '../models/grab.gltf') {
         // Load a glTF resource
-        console.log(url);
+        //console.log(url);
         const loader = new GLTFLoader();
         loader.load(url, function (gltf) {
             this.model = gltf;

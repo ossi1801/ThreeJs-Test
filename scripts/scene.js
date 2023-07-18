@@ -59,7 +59,7 @@ export default function init() {
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
 
     //Text object
-    let textTest = new TextDraw(scene,getUrlContent("/three.js-master/examples/fonts/helvetiker_regular.typeface.json"));
+    let textTest = new TextDraw(scene,getUrlContent("three.js-master/examples/fonts/helvetiker_regular.typeface.json"));
     textTest.drawText("Storage",0,30,0);
 
     animate(); //anim always last

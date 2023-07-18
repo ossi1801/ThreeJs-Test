@@ -29,9 +29,11 @@ export function getUrlContent(url = "") {
     let combinedLocal = baseUrl + url;
     let ghCombined = ghUrl + url;
     if (UrlExists(combinedLocal)) {
+        console.log(combinedLocal+ " local URL exists"); 
         return combinedLocal;
     }
     else if (UrlExists(ghCombined)) {
+        console.warn(ghCombined+ " local URL does not exists, loaded gh url");
         return ghCombined;
     }
     else {
