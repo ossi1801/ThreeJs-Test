@@ -22,18 +22,18 @@ export function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-//
-export async function getUrlContent(url = "") {
+
+export function getUrlContent(url = "") {
     let baseUrl = "../";
     let ghUrl = "https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/";
     let combinedLocal = baseUrl + url;
     let ghCombined = ghUrl + url;
 
-    if (await UrlExists(combinedLocal)) {
+    if (UrlExists(combinedLocal)) {
         console.log(combinedLocal+ " local URL exists"); 
         return combinedLocal;
     }
-    else if (await UrlExists(ghCombined)) {
+    else if (UrlExists(ghCombined)) {
         console.warn(ghCombined+ " local URL does not exists, loaded gh url");
         return ghCombined;
     }
@@ -43,7 +43,7 @@ export async function getUrlContent(url = "") {
     }
 
 }
-
+//TODO FIX FAKE TRUE YIELDS
 async function UrlExists(url) {
     try {
       const response = await fetch(url, {
