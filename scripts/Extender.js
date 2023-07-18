@@ -22,17 +22,18 @@ export function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-export function getUrlContent(url = "") {
+//
+export async function getUrlContent(url = "") {
     let baseUrl = "../";
     let ghUrl = "https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/";
-
     let combinedLocal = baseUrl + url;
     let ghCombined = ghUrl + url;
-    if (UrlExists(combinedLocal)) {
+
+    if (await UrlExists(combinedLocal)) {
         console.log(combinedLocal+ " local URL exists"); 
         return combinedLocal;
     }
-    else if (UrlExists(ghCombined)) {
+    else if (await UrlExists(ghCombined)) {
         console.warn(ghCombined+ " local URL does not exists, loaded gh url");
         return ghCombined;
     }
