@@ -95,7 +95,7 @@ export class Grab extends AnimatedObject {
         this.model = null;
         this.grabAnimSpeed = 1.5;
         this.endOfAnim = false;
-        this.loadGrab(getUrlContent("models/grab.gltf"));
+        (async () => { this.loadGrab(await getUrlContent("models/grab.gltf"));  })();      
     }
     loadGrab(url = '../models/grab.gltf') {
         // Load a glTF resource

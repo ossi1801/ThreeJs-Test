@@ -2,10 +2,10 @@ import * as THREE from '../three.js-master/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
 //TODO IMPORT FROM IMPORT MAP 
-import { Bridge,Trolley, Grab,TextDraw } from './LoadObjects.js';
-import { getColor, randomIntFromInterval,getUrlContent } from './Extender.js';
+import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
+import { getColor, randomIntFromInterval, getUrlContent } from './Extender.js';
 
-export default function init() {
+export default async function init() {
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
     var nextLocation = null;
@@ -54,13 +54,14 @@ export default function init() {
     }
     let outerWallDepth = 80;
     createOuterWalls(150, 10, outerWallDepth);  //call functions
-    trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0); 
+    trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0);
     grab = new Grab(scene);
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
 
     //Text object
-    let textTest = new TextDraw(scene,getUrlContent("three.js-master/examples/fonts/helvetiker_regular.typeface.json"));
-    textTest.drawText("Storage",0,30,0);
+    let font = await getUrlContent("three.js-master/examples/fonts/helvetiker_regular.typeface.json");;
+    let textTest = new TextDraw(scene, font);
+    textTest.drawText("Storage", 0, 30, 0);
 
     animate(); //anim always last
 
