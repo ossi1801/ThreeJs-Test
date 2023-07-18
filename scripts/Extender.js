@@ -21,3 +21,37 @@ export function getColor(min, max, curr, minColor = "#abd4ed", maxColor = "#0029
 export function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
+
+export function getUrlContent(url = "") {
+    let baseUrl = "../";
+    let ghUrl = "https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/";
+
+    let combinedLocal = baseUrl + url;
+    let ghCombined = ghUrl + url;
+    if (UrlExists(combinedLocal)) {
+        return combinedLocal;
+    }
+    else if (UrlExists(ghCombined)) {
+        return ghCombined;
+    }
+    else {
+        console.error(url +" does not exist");
+        return "";
+    }
+
+}
+
+async function UrlExists(url) {
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        cache: 'no-cache'
+      });
+      //console.log(url+ " yes"); 
+      return response.status === 200;
+  
+    } catch(error) {
+      // console.log(error);
+      return false;
+    }
+  }

@@ -3,7 +3,7 @@ import { GLTFLoader } from '../three.js-master/examples/jsm/loaders/GLTFLoader.j
 import * as BufferGeometryUtils from '../three.js-master/examples/jsm/utils/BufferGeometryUtils.js';
 import { TextGeometry } from '../three.js-master/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three.js-master/examples/jsm/loaders/FontLoader.js';
-
+import { getUrlContent } from './Extender.js';
 class AnimatedObject {
     constructor(scene) {
         this.scene = scene;
@@ -95,7 +95,7 @@ export class Grab extends AnimatedObject {
         this.model = null;
         this.grabAnimSpeed = 1.5;
         this.endOfAnim = false;
-        this.loadGrab();
+        this.loadGrab(getUrlContent("models/grab.gltf"));
     }
     loadGrab(url = '../models/grab.gltf') {
         // Load a glTF resource
@@ -114,7 +114,7 @@ export class Grab extends AnimatedObject {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             function (error) {
-                this.loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab.gltf')
+                this.loadGrab('https://raw.githubusercontent.com/ossi1801/ThreeJs-Test/main/models/grab.gltf'); // This is useless (?)
                 console.log('An error happened', error);
             }.bind(this)
         );
@@ -179,7 +179,7 @@ export class TextDraw {
         this.font = null;
         this.#loadFont();
     }
-    async drawText(text,x, y, z,size = 10, height = 5, bevelThickness = 1, color = 0xff0000, specular = 0xffffff) {
+    async drawText(text, x, y, z, size = 10, height = 5, bevelThickness = 1, color = 0xff0000, specular = 0xffffff) {
         this.text = text;
         this.size = size;
         this.height = height;
@@ -217,7 +217,7 @@ export class TextDraw {
         this.material = new THREE.MeshPhongMaterial({ color: this.color, specular: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.scene.add(this.mesh);
-        this.mesh.position.set(this.x,this.y,this.z);
+        this.mesh.position.set(this.x, this.y, this.z);
     }
     async #loadFont() { this.font = await this.#ld(); }
     #ld() {
