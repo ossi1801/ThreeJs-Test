@@ -50,10 +50,10 @@ async function UrlExists(url) {
         method: 'HEAD',
         cache: 'no-cache'
       });
-      //console.log(url+ " yes"); 
       console.log(response.url); 
       console.log(response); 
-      return response.status === 200;
+      console.log(response.status);
+      return response.ok;
   
     } catch(error) {
       // console.log(error);
