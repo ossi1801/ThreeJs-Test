@@ -1,4 +1,25 @@
+
+
 //export default class Extender {}
+export function createCameraPresetButtons(text="left",camera,controls,x=120,y=50,z=20,targetX=0,targetY=0,targetZ=0 ){
+    var button = document.createElement('button');
+    button.innerHTML = text;
+    button.onclick = ()=>{
+        //Set inactive all other buttons
+        var buttons = document.getElementsByTagName('button');
+        for (let i = 0; i < buttons.length; i++) {buttons[i].className = "";}
+         //Set active current btn
+        button.className = "active";
+        setCameraPos(camera,controls,x, y, z,targetX,targetY,targetZ);
+    }
+    document.body.appendChild(button);
+}
+export function setCameraPos(camera,controls,x=120,y=50,z=20,targetX=0,targetY=0,targetZ=0){
+    camera.position.set( x, y, z );
+    controls.target.set(targetX, targetY, targetZ);
+    controls.update();
+    return camera;
+} 
 export function hexToRgb(hex) {
     return {
         r: parseInt(hex.substring(1, 3), 16),

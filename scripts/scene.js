@@ -3,8 +3,7 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
 //TODO IMPORT FROM IMPORT MAP 
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
-import { getColor, randomIntFromInterval } from './Extender.js';
-
+import { getColor, randomIntFromInterval,setCameraPos,createCameraPresetButtons } from './Extender.js';
 export default function init() {
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
@@ -40,10 +39,8 @@ export default function init() {
     let offsetY = (yAmount * boxPos + boxW) / 2;
     for (let i = 0; i < xAmount; i++) {
         for (let k = 0; k < yAmount; k++) {
-
             let x = (boxW + boxPos * i) - offsetX;
             let y = (boxW + boxPos * k) - offsetY;
-
             let min = 1;
             let max = 6;
             let surfaceHeight = randomIntFromInterval(min, max);
@@ -52,8 +49,10 @@ export default function init() {
             createNamedBox(i, k, boxW, surfaceHeight, boxW, surfaceColor, x, z, y); //'grey'
         }
     }
+    let outerWallWidth = 150;
+    let outerWallHeight = 10;
     let outerWallDepth = 80;
-    createOuterWalls(150, 10, outerWallDepth);  //call functions
+    createOuterWalls(outerWallWidth, outerWallHeight, outerWallDepth);  //call functions
     trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0);
     grab = new Grab(scene);
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
@@ -62,7 +61,11 @@ export default function init() {
     let font = "three.js-master/examples/fonts/helvetiker_regular.typeface.json";
     let textTest = new TextDraw(scene, font);
     textTest.drawText("Storage", 0, 30, 0);
-
+    setCameraPos(camera,controls,0, 70, 170,0,0,0);
+    createCameraPresetButtons("Default",camera,controls,0, 70, 170);
+    createCameraPresetButtons("UpLeft",camera,controls,150, 200, 200);
+    createCameraPresetButtons("UpBird",camera,controls,0, 200, 0);
+    createCameraPresetButtons("Behind",camera,controls,0, 70, -170);
     animate(); //anim always last
 
 

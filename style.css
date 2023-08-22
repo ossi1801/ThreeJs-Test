@@ -12,7 +12,22 @@
     width: 100vw;
  }
  #threejs-container {
-    position: block;
+    position: absolute;
     width: 100%;
     height: 100%;
+ }
+ button.active{
+   background-color: #102e41; 
+ }
+ button{
+   left: 20%;
+   top: 80%;
+   margin-left:  2%;
+   position: relative;
+   background-color: #5e7d90; 
+   color: white; 
+   border: 2px solid #000000;
+   font-size: large;
+   padding: 0.5rem;
+   z-index: 999;
  }
