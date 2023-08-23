@@ -17,10 +17,14 @@
          </script>
    </head>
    <body>
-      <div id="threejs-container"></div>
+      <div id="threejs-container"></div> 
       <script type="module">
         import init from './scripts/scene.js'; 
-        init();    
+        init();   
+        document.addEventListener("DOMContentLoaded", () => {
+         document.getElementById("btnDefault").click(); //call to set camera pos from button and "activate" button color
+      }); 
       </script>
+      <a href="https://github.com/ossi1801/ThreeJs-Test" class="ghBtn" alt="Back to github"></a>   
    </body>
 </html>

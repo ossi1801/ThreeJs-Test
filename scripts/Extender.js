@@ -3,6 +3,7 @@
 //export default class Extender {}
 export function createCameraPresetButtons(text="left",camera,controls,x=120,y=50,z=20,targetX=0,targetY=0,targetZ=0 ){
     var button = document.createElement('button');
+    button.id = "btn"+text;
     button.innerHTML = text;
     button.onclick = ()=>{
         //Set inactive all other buttons
