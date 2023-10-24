@@ -3,14 +3,16 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
 //TODO IMPORT FROM IMPORT MAP 
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
-import { getColor, randomIntFromInterval,createCameraPresetButtons } from './Extender.js';
+import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
+import {createGameControls} from './gamepad.js';
 export default function init() {
+    createGameControls();
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
     var nextLocation = null;
     var speed = 0.05;
     var goingUp = false;
-
+    var automActive = false;    
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x889988);
@@ -61,10 +63,11 @@ export default function init() {
     let font = "three.js-master/examples/fonts/helvetiker_regular.typeface.json";
     let textTest = new TextDraw(scene, font);
     textTest.drawText("Storage", 0, 30, 0);
-    createCameraPresetButtons("Default",camera,controls,0, 70, 170);
-    createCameraPresetButtons("UpLeft",camera,controls,150, 200, 200);
-    createCameraPresetButtons("UpBird",camera,controls,0, 200, 0);
-    createCameraPresetButtons("Behind",camera,controls,0, 70, -170);
+    createCameraPresetButtons("Default", camera, controls, 0, 70, 170);
+    createCameraPresetButtons("UpLeft", camera, controls, 150, 200, 200);
+    createCameraPresetButtons("UpBird", camera, controls, 0, 200, 0);
+    createCameraPresetButtons("Behind", camera, controls, 0, 70, -170);
+    //createToggleAutomaticLocationBtn(automActive);
     animate(); //anim always last
 
 
@@ -74,7 +77,10 @@ export default function init() {
         var delta = clock.getDelta();
         if (grab.mixer) grab.mixer.update(delta);
         if (grab.mesh != undefined && boxArray.length > 0) {
-            moveToNextLocation();
+            if (automActive)
+                moveToNextLocation();
+            //else
+                //console.log("manual control");
         }
         renderer.render(scene, camera);
 
