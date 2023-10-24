@@ -6,7 +6,6 @@ import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
 import {createGameControls} from './gamepad.js';
 export default function init() {
-    createGameControls();
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
     var nextLocation = null;
@@ -68,6 +67,7 @@ export default function init() {
     createCameraPresetButtons("UpBird", camera, controls, 0, 200, 0);
     createCameraPresetButtons("Behind", camera, controls, 0, 70, -170);
     //createToggleAutomaticLocationBtn(automActive);
+    createGameControls(grab,trolley,bridge);
     animate(); //anim always last
 
 
