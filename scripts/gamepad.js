@@ -81,7 +81,7 @@ const gamepadAPI = {
   },
   speed: function (axes) { return this.axesStatus[0] ? Math.abs(axes / 4) : 0; },
   updateGrab() {
-   console.log(gamepadAPI.buttonsStatus);
+    if(gamepadAPI.buttonsStatus.length>0) console.log(gamepadAPI.buttonsStatus);
     if (gamepadAPI.buttonPressed("B")) {
       grab.playGrabAnim();
     }
