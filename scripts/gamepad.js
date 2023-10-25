@@ -6,7 +6,7 @@ const gamepadAPI = {
     this.trolley = trolley;
     this.bridge = bridge;
   },
-  connect(gp,grab, trolley, bridge, evt) {
+  connect(gp, grab, trolley, bridge, evt) {
     console.log(this);
     console.log("evt", evt);
     console.log("grab", grab);
@@ -16,8 +16,7 @@ const gamepadAPI = {
     gamepadAPI.turbo = true;
     console.log('Gamepad connected.');
     gamepadAPI.init3d(grab, trolley, bridge);
-    gp.gamepad = gamepadAPI;  //setInterval(gamepadAPI.update, 100);
-    //gamepadAPI.update();
+    gp.gamepad = gamepadAPI;//update done in threejs animate
   },
   disconnect(evt) {
     gamepadAPI.turbo = false;
@@ -69,24 +68,22 @@ const gamepadAPI = {
     if (this.axesStatus[0] > 0.3 || this.axesStatus[0] < -0.3) {
       let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
       //console.log(this.axesStatus[0] + ">" + "0", this.axesStatus[0] > 0, sign);
-      this.grab.moveX(sign, this.speed);
-      this.trolley.moveX(sign, this.speed);
-      this.bridge.moveX(sign, this.speed);
+      this.grab.moveX(sign, this.speed(this.axesStatus[0]));
+      this.trolley.moveX(sign, this.speed(this.axesStatus[0]));
+      this.bridge.moveX(sign, this.speed(this.axesStatus[0]));
     }
-    if (this.axesStatus[2] > 0.3) {
-      this.bridge.moveX("-", this.speed);
+    if (this.axesStatus[1] > 0.3 || this.axesStatus[1] < -0.3) {
+      let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
+      this.grab.moveY(sign, this.speed(this.axesStatus[1]));
+      this.trolley.moveY(sign, this.speed(this.axesStatus[1]));
+      this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
     }
   },
-  get speed() {
-    if (this.axesStatus[0])
-      return Math.abs(this.axesStatus[0] / 2);
-    else return 0;
-  }
-
+  speed: function (axes) {return this.axesStatus[0] ? Math.Abs(axes / 4) : 0;}
 };
 
-export function createGameControls(gp,grab, trolley, bridge) {
-  window.addEventListener("gamepadconnected", gamepadAPI.connect.bind(null,gp, grab, trolley, bridge));//;
+export function createGameControls(gp, grab, trolley, bridge) {
+  window.addEventListener("gamepadconnected", gamepadAPI.connect.bind(null, gp, grab, trolley, bridge));//;
   window.addEventListener("gamepaddisconnected", gamepadAPI.disconnect);
   console.log('created');
 }
