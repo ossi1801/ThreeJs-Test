@@ -74,9 +74,9 @@ const gamepadAPI = {
     }
     if (this.axesStatus[1] > 0.3 || this.axesStatus[1] < -0.3) {
       let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
-      this.grab.moveY(sign, this.speed(this.axesStatus[1]));
-      this.trolley.moveY(sign, this.speed(this.axesStatus[1]));
-      this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
+      this.grab.moveZ(sign, this.speed(this.axesStatus[1]));
+      this.trolley.moveZ(sign, this.speed(this.axesStatus[1]));
+      //this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
     }
   },
   speed: function (axes) {return this.axesStatus[0] ? Math.abs(axes / 4) : 0;}
