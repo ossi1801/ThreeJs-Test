@@ -80,8 +80,8 @@ export default function init() {
         if (grab.mesh != undefined && boxArray.length > 0) {
             if (automActive)
                 moveToNextLocation();
-            else
-                gp.gamepad.update();
+            else if(gp.gamepad) 
+                 gp.gamepad.update();
         }
         renderer.render(scene, camera);
 
