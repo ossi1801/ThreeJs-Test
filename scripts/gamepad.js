@@ -6,7 +6,7 @@ const gamepadAPI = {
     this.trolley = trolley;
     this.bridge = bridge;
   },
-  connect(grab, trolley, bridge, evt) {
+  connect(gp,grab, trolley, bridge, evt) {
     console.log(this);
     console.log("evt", evt);
     console.log("grab", grab);
@@ -16,8 +16,7 @@ const gamepadAPI = {
     gamepadAPI.turbo = true;
     console.log('Gamepad connected.');
     gamepadAPI.init3d(grab, trolley, bridge);
-    setInterval(gamepadAPI.update, 100);
-
+    gp.gamepad = gamepadAPI;  //setInterval(gamepadAPI.update, 100);
     //gamepadAPI.update();
   },
   disconnect(evt) {
@@ -80,15 +79,14 @@ const gamepadAPI = {
   },
   get speed() {
     if (this.axesStatus[0])
-      return Math.Abs(this.axesStatus[0] / 10);
+      return Math.abs(this.axesStatus[0] / 2);
     else return 0;
   }
 
 };
 
-export function createGameControls(grab, trolley, bridge) {
-
-  window.addEventListener("gamepadconnected", gamepadAPI.connect.bind(null, grab, trolley, bridge));//;
+export function createGameControls(gp,grab, trolley, bridge) {
+  window.addEventListener("gamepadconnected", gamepadAPI.connect.bind(null,gp, grab, trolley, bridge));//;
   window.addEventListener("gamepaddisconnected", gamepadAPI.disconnect);
   console.log('created');
 }

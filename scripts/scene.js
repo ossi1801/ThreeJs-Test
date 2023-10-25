@@ -67,7 +67,8 @@ export default function init() {
     createCameraPresetButtons("UpBird", camera, controls, 0, 200, 0);
     createCameraPresetButtons("Behind", camera, controls, 0, 70, -170);
     //createToggleAutomaticLocationBtn(automActive);
-    createGameControls(grab,trolley,bridge);
+    var gp ={gamepad: null}; 
+    createGameControls(gp,grab,trolley,bridge);
     animate(); //anim always last
 
 
@@ -79,8 +80,8 @@ export default function init() {
         if (grab.mesh != undefined && boxArray.length > 0) {
             if (automActive)
                 moveToNextLocation();
-            //else
-                //console.log("manual control");
+            else
+                gp.gamepad.update();
         }
         renderer.render(scene, camera);
 
