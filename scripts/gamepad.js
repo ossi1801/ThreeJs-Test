@@ -79,7 +79,7 @@ const gamepadAPI = {
       this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
     }
   },
-  speed: function (axes) {return this.axesStatus[0] ? Math.Abs(axes / 4) : 0;}
+  speed: function (axes) {return this.axesStatus[0] ? Math.abs(axes / 4) : 0;}
 };
 
 export function createGameControls(gp, grab, trolley, bridge) {
