@@ -73,7 +73,7 @@ const gamepadAPI = {
       this.bridge.moveX(sign, this.speed(this.axesStatus[0]));
     }
     if (this.axesStatus[1] > 0.3 || this.axesStatus[1] < -0.3) {
-      let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
+      let sign = this.axesStatus[1] > 0.3 ? "+" : "-";
       this.grab.moveZ(sign, this.speed(this.axesStatus[1]));
       this.trolley.moveZ(sign, this.speed(this.axesStatus[1]));
       //this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
