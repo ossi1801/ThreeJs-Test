@@ -4,14 +4,14 @@ import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/P
 //TODO IMPORT FROM IMPORT MAP 
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
-import {createGameControls} from './gamepad.js';
+import { createGameControls } from './gamepad.js';
 export default function init() {
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
     var boxArray = [];
     var nextLocation = null;
     var speed = 0.05;
     var goingUp = false;
-    var automActive = false;    
+    var automActive = false;
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x889988);
@@ -67,8 +67,8 @@ export default function init() {
     createCameraPresetButtons("UpBird", camera, controls, 0, 200, 0);
     createCameraPresetButtons("Behind", camera, controls, 0, 70, -170);
     //createToggleAutomaticLocationBtn(automActive);
-    var gp ={gamepad: null}; 
-    createGameControls(gp,grab,trolley,bridge);
+    var gp = { gamepad: null };
+    createGameControls(gp, grab, trolley, bridge);
     animate(); //anim always last
 
 
@@ -78,10 +78,11 @@ export default function init() {
         var delta = clock.getDelta();
         if (grab.mixer) grab.mixer.update(delta);
         if (grab.mesh != undefined && boxArray.length > 0) {
-            if (automActive)
+
+            if (gp.gamepad)
+                gp.gamepad.update();
+            else  //if (automActive)    
                 moveToNextLocation();
-            else if(gp.gamepad) 
-                 gp.gamepad.update();
         }
         renderer.render(scene, camera);
 

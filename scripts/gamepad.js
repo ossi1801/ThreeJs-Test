@@ -7,13 +7,8 @@ const gamepadAPI = {
     this.bridge = bridge;
   },
   connect(gp, grab, trolley, bridge, evt) {
-    console.log(this);
-    console.log("evt", evt);
-    console.log("grab", grab);
-    console.log("trolley", trolley);
-    console.log("bridge", bridge);
     gamepadAPI.controller = evt.gamepad;
-    gamepadAPI.turbo = true;
+    //gamepadAPI.turbo = true;
     console.log('Gamepad connected.');
     gamepadAPI.init3d(grab, trolley, bridge);
     gp.gamepad = gamepadAPI;//update done in threejs animate
@@ -24,17 +19,12 @@ const gamepadAPI = {
     console.log('Gamepad disconnected.');
   },
   update() {
-    // Clear the buttons cache
-    gamepadAPI.buttonsCache = [];
-    // Move the buttons status from the previous frame to the cache
-    for (let k = 0; k < gamepadAPI.buttonsStatus.length; k++) {
+    gamepadAPI.buttonsCache = [];   // Clear the buttons cache
+    for (let k = 0; k < gamepadAPI.buttonsStatus.length; k++) {  // Move the buttons status from the previous frame to the cache
       gamepadAPI.buttonsCache[k] = gamepadAPI.buttonsStatus[k];
     }
-    // Clear the buttons status
-    gamepadAPI.buttonsStatus = [];
-    // Get the gamepad object
+    gamepadAPI.buttonsStatus = []; // Clear the buttons status
     const c = gamepadAPI.controller || {};
-    // Loop through buttons and push the pressed ones to the array
     const pressed = [];
     if (c.buttons) {
       for (let b = 0; b < c.buttons.length; b++) {
@@ -43,31 +33,42 @@ const gamepadAPI = {
         }
       }
     }
-    // Loop through axes and push their values to the array
     const axes = [];
     if (c.axes) {
       for (let a = 0; a < c.axes.length; a++) {
         axes.push(c.axes[a].toFixed(2));
       }
     }
-
     // Assign received values
     gamepadAPI.axesStatus = axes;
     gamepadAPI.buttonsStatus = pressed;
     gamepadAPI.updatePos();
-    // Return buttons for debugging purposes
-    //return pressed;
+    gamepadAPI.updateGrab();
+    //return pressed;  // Return buttons for debugging purposes
   },
-  buttonPressed() { },
+
+  buttonPressed(button, hold) {
+    let newPress = false;
+    for (let i = 0; i < gamepadAPI.buttonsStatus.length; i++) {      // Loop through pressed buttons
+      if (gamepadAPI.buttonsStatus[i] === button) {
+        newPress = true;
+        if (!hold) {  // If we want to check the single press   
+          for (let j = 0; j < gamepadAPI.buttonsCache.length; j++) {  // Loop through the cached states from the previous frame         
+            newPress = (gamepadAPI.buttonsCache[j] !== button);  // If the button was already pressed, ignore new press
+          }
+        }
+      }
+    }
+    return newPress;
+  },
+
   buttons: [],
   buttonsCache: [],
   buttonsStatus: [],
   axesStatus: [],
   updatePos() {
-    //console.log(this.axesStatus);
     if (this.axesStatus[0] > 0.3 || this.axesStatus[0] < -0.3) {
       let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
-      //console.log(this.axesStatus[0] + ">" + "0", this.axesStatus[0] > 0, sign);
       this.grab.moveX(sign, this.speed(this.axesStatus[0]));
       this.trolley.moveX(sign, this.speed(this.axesStatus[0]));
       this.bridge.moveX(sign, this.speed(this.axesStatus[0]));
@@ -76,10 +77,15 @@ const gamepadAPI = {
       let sign = this.axesStatus[1] > 0.3 ? "+" : "-";
       this.grab.moveZ(sign, this.speed(this.axesStatus[1]));
       this.trolley.moveZ(sign, this.speed(this.axesStatus[1]));
-      //this.bridge.moveY(sign, this.speed(this.axesStatus[1]));
     }
   },
-  speed: function (axes) {return this.axesStatus[0] ? Math.abs(axes / 4) : 0;}
+  speed: function (axes) { return this.axesStatus[0] ? Math.abs(axes / 4) : 0; },
+  updateGrab() {
+   console.log(gamepadAPI.buttonsStatus);
+    if (gamepadAPI.buttonPressed("B")) {
+      grab.playGrabAnim();
+    }
+  }
 };
 
 export function createGameControls(gp, grab, trolley, bridge) {
