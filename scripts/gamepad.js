@@ -1,6 +1,11 @@
 const gamepadAPI = {
-  controller: {},
-  turbo: false,
+  controller: {}, grab: {}, trolley: {}, bridge: {},
+  //turbo: false, wtf is turbo
+  init3d(grab, trolley, bridge) {
+    this.grab = grab;
+    this.trolley = trolley;
+    this.bridge = bridge;
+  },
   connect(grab, trolley, bridge, evt) {
     console.log(this);
     console.log("evt", evt);
@@ -10,7 +15,7 @@ const gamepadAPI = {
     gamepadAPI.controller = evt.gamepad;
     gamepadAPI.turbo = true;
     console.log('Gamepad connected.');
-    gamepadAPI.init(grab, trolley, bridge);
+    gamepadAPI.init3d(grab, trolley, bridge);
     setInterval(gamepadAPI.update, 100);
 
     //gamepadAPI.update();
@@ -63,9 +68,8 @@ const gamepadAPI = {
   updatePos() {
     //console.log(this.axesStatus);
     if (this.axesStatus[0] > 0.3 || this.axesStatus[0] < -0.3) {
-      let sign = this.axesStatus[0] > 0.3 ? "+":"-";
-      this.speed = this.axesStatus[0] /10;
-      console.log(this.axesStatus[0]+">"+"0",this.axesStatus[0] > 0 ,sign);
+      let sign = this.axesStatus[0] > 0.3 ? "+" : "-";
+      //console.log(this.axesStatus[0] + ">" + "0", this.axesStatus[0] > 0, sign);
       this.grab.moveX(sign, this.speed);
       this.trolley.moveX(sign, this.speed);
       this.bridge.moveX(sign, this.speed);
@@ -73,16 +77,13 @@ const gamepadAPI = {
     if (this.axesStatus[2] > 0.3) {
       this.bridge.moveX("-", this.speed);
     }
-
-
   },
-  init(grab, trolley, bridge) {
-    this.grab = grab;
-    this.trolley = trolley;
-    this.bridge = bridge;
-  },
-  speed: 0.05,
-  grab: {}, trolley: {}, bridge: {},
+  get speed() {
+    if (this.axesStatus[0])
+      return Math.Abs(this.axesStatus[0] / 10);
+    else return 0;
+  }
+
 };
 
 export function createGameControls(grab, trolley, bridge) {
