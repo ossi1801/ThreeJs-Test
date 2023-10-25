@@ -83,7 +83,7 @@ const gamepadAPI = {
   updateGrab() {
     if(gamepadAPI.buttonsStatus.length>0) console.log(gamepadAPI.buttonsStatus);
     if (gamepadAPI.buttonPressed(undefined)) {
-      grab.playGrabAnim();
+      this.grab.playGrabAnim();
     }
   }
 };
