@@ -1,12 +1,13 @@
 import * as THREE from '../three.js-master/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 import { ParametricGeometry } from '../three.js-master/examples/jsm/geometries/ParametricGeometry.js';
+import { AmmoPhysics} from '../three.js-master/examples/jsm/physics/AmmoPhysics.js'
 //TODO IMPORT FROM IMPORT MAP 
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
 import { createGameControls } from './gamepad.js';
-export default function init() {
-    var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor;
+export default async function init() {
+    var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor,physics;
     var boxArray = [];
     var nextLocation = null;
     var speed = 0.05;
@@ -30,8 +31,8 @@ export default function init() {
     // light
     var light = new THREE.PointLight(0xffffff, 0.8);
     camera.add(light);
-
-
+    //Physics
+    physics = await AmmoPhysics();
     let boxW = 2;
     let boxPos = 3;
     let xAmount = 50;
@@ -48,6 +49,7 @@ export default function init() {
             let surfaceColor = getColor(min, max, surfaceHeight);
             let z = surfaceHeight / 2 - 4;
             createNamedBox(i, k, boxW, surfaceHeight, boxW, surfaceColor, x, z, y); //'grey'
+            //.userData.physics = { mass: 1 };
         }
     }
     let outerWallWidth = 150;
@@ -55,7 +57,7 @@ export default function init() {
     let outerWallDepth = 80;
     createOuterWalls(outerWallWidth, outerWallHeight, outerWallDepth);  //call functions
     trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0);
-    grab = new Grab(scene);
+    grab = new Grab(scene);   
     bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
 
     //Text object
@@ -69,6 +71,7 @@ export default function init() {
     //createToggleAutomaticLocationBtn(automActive);
     var gp = { gamepad: null };
     createGameControls(gp, grab, trolley, bridge);
+    physics.addScene(scene); //Add scene to physics engine
     animate(); //anim always last
 
 
@@ -85,7 +88,7 @@ export default function init() {
                 moveToNextLocation();
         }
         renderer.render(scene, camera);
-
+       // console.log(physics);
     }
 
 
@@ -174,6 +177,7 @@ export default function init() {
         });
         let mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(x, y, z);
+        mesh.userData.physics = { mass: 1 };
         scene.add(mesh);
         return mesh;
     }
@@ -192,6 +196,16 @@ export default function init() {
             side: THREE.BackSide
         });
         mesh = new THREE.Mesh(wallGeometry, outerWallMat);
+        //mesh.userData.physics = { mass: 0 }; //
+        scene.add(mesh);      
+        let floorGeom = new THREE.BoxGeometry(width, 1, depth);
+        let floorMat = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            transparent:false,
+        });
+        mesh = new THREE.Mesh(floorGeom, floorMat);
+        mesh.userData.physics = { mass: 0 }; //Floor or smth
+        mesh.position.set(0, -height/2, 0);
         scene.add(mesh);
     }
 

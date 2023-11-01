@@ -94,7 +94,7 @@ export class Grab extends AnimatedObject {
         this.action = null;
         this.model = null;
         this.grabAnimSpeed = 1.5;
-        this.endOfAnim = false;
+        this.endOfAnim = false;    
         (async () => { this.loadGrab(await getUrlContent("models/grab.gltf"));  })();      
     }
     loadGrab(url = '../models/grab.gltf') {
@@ -102,13 +102,16 @@ export class Grab extends AnimatedObject {
         //console.log(url);
         const loader = new GLTFLoader();
         loader.load(url, function (gltf) {
-            this.model = gltf;
+            this.model = gltf;            
             this.mixer = new THREE.AnimationMixer(this.model.scene);
             this.action = this.mixer.clipAction(gltf.animations[0]);
             this.action.setLoop(THREE.LoopOnce); // Do only once
             this.action.clampWhenFinished = true; //Finishing pos
             this.scene.add(this.model.scene);
-            this.loadGrabLine(); //if everything okay draw extra stuff
+            //if everything okay draw extra stuff
+            this.createCollider();
+            this.loadGrabLine(); 
+         
         }.bind(this),
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -119,6 +122,18 @@ export class Grab extends AnimatedObject {
                 console.log('An error happened', error);
             }.bind(this)
         );
+    }
+    createCollider(){
+        let collGeom = new THREE.BoxGeometry(2, 2, 2);
+        let collMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            wireframe : true,
+        });
+        this.colliderMesh = new THREE.Mesh(collGeom, collMat);
+        this.colliderMesh.userData.physics = { mass: 1 }; //Collider has no mass?
+        this.colliderMesh.name = "collider";
+        this.scene.add(this.colliderMesh);   
+        //console.log(this.colliderMesh);  
     }
     loadGrabLine() {
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
@@ -133,10 +148,12 @@ export class Grab extends AnimatedObject {
     moveX(Direction = "+", speed = 0.05) {
         super.moveX(Direction, speed);
         this.model.scene.position.setX(this.mesh.position.x);
+        this.colliderMesh.position.setX(this.mesh.position.x);
     }
     moveZ(Direction = "+", speed = 0.05) {
         super.moveZ(Direction, speed);
         this.model.scene.position.setZ(this.mesh.position.z);
+        this.colliderMesh.position.setZ(this.mesh.position.z);
     }
     moveY(Direction = "+", speed = 0.05) {
         if (Direction == "+") {//down
@@ -148,6 +165,7 @@ export class Grab extends AnimatedObject {
             this.mesh.scale.y += speed / 10;
         }
         this.model.scene.position.setY(this.mesh.position.y);
+        this.colliderMesh.position.setY(this.mesh.position.y);
     }
     playGrabAnim() {
         this.action = this.mixer.clipAction(this.model.animations[0]);
