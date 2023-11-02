@@ -1,4 +1,4 @@
-async function AmmoPhysics() {
+async function AmmoPhysics(am) {
 
 	if ( 'Ammo' in window === false ) {
 
@@ -7,8 +7,8 @@ async function AmmoPhysics() {
 
 	}
 
-	const AmmoLib = await Ammo(); // eslint-disable-line no-undef
-
+	const AmmoLib = am;///wait Ammo(); // eslint-disable-line no-undef
+	console.log(AmmoLib);
 	const frameRate = 60;
 
 	const collisionConfiguration = new AmmoLib.btDefaultCollisionConfiguration();
