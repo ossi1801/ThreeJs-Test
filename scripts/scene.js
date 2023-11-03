@@ -6,7 +6,6 @@ import { AmmoPhysics } from '../three.js-master/examples/jsm/physics/AmmoPhysics
 import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
 import { createGameControls } from './gamepad.js';
-import * as asd from '../three.js-master/examples/jsm/libs/ammo.wasm.js';
 export default async function Start() {
     var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor, physics;
     var boxArray = [];
