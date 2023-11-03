@@ -87,8 +87,9 @@ export class Trolley extends AnimatedObject {
 }
 
 export class Grab extends AnimatedObject {
-    constructor(scene) {
+    constructor(scene,physics) {
         super(scene);
+        this.physics = physics;
         this.scene = scene;
         this.mixer = null;
         this.action = null;
@@ -133,6 +134,7 @@ export class Grab extends AnimatedObject {
         this.colliderMesh.userData.physics = { mass: 1 }; //Collider has no mass?
         this.colliderMesh.name = "collider";
         this.scene.add(this.colliderMesh);   
+        this.physics.addMesh(this.colliderMesh,1);
         //console.log(this.colliderMesh);  
     }
     loadGrabLine() {
@@ -148,12 +150,14 @@ export class Grab extends AnimatedObject {
     moveX(Direction = "+", speed = 0.05) {
         super.moveX(Direction, speed);
         this.model.scene.position.setX(this.mesh.position.x);
-        this.colliderMesh.position.setX(this.mesh.position.x);
+        //this.colliderMesh.position.setX(this.mesh.position.x);
+        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
     }
     moveZ(Direction = "+", speed = 0.05) {
         super.moveZ(Direction, speed);
         this.model.scene.position.setZ(this.mesh.position.z);
-        this.colliderMesh.position.setZ(this.mesh.position.z);
+        //this.colliderMesh.position.setZ(this.mesh.position.z);
+        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
     }
     moveY(Direction = "+", speed = 0.05) {
         if (Direction == "+") {//down
@@ -165,7 +169,8 @@ export class Grab extends AnimatedObject {
             this.mesh.scale.y += speed / 10;
         }
         this.model.scene.position.setY(this.mesh.position.y);
-        this.colliderMesh.position.setY(this.mesh.position.y);
+        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
+        //this.colliderMesh.position.setY(this.mesh.position.y);
     }
     playGrabAnim() {
         this.action = this.mixer.clipAction(this.model.animations[0]);

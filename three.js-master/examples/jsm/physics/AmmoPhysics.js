@@ -8,7 +8,6 @@ async function AmmoPhysics(am) {
 	}
 
 	const AmmoLib = am;///wait Ammo(); // eslint-disable-line no-undef
-	console.log(AmmoLib);
 	const frameRate = 60;
 
 	const collisionConfiguration = new AmmoLib.btDefaultCollisionConfiguration();
@@ -169,7 +168,7 @@ async function AmmoPhysics(am) {
 	function setMeshPosition( mesh, position, index = 0 ) {
 
 		if ( mesh.isInstancedMesh ) {
-
+		
 			const bodies = meshMap.get( mesh );
 			const body = bodies[ index ];
 
@@ -180,8 +179,7 @@ async function AmmoPhysics(am) {
 			worldTransform.setOrigin( new AmmoLib.btVector3( position.x, position.y, position.z ) );
 			body.setWorldTransform( worldTransform );
 
-		} else if ( mesh.isMesh ) {
-
+		} else if ( mesh.isMesh ) {		
 			const body = meshMap.get( mesh );
 
 			body.setAngularVelocity( new AmmoLib.btVector3( 0, 0, 0 ) );

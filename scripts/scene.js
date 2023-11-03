@@ -71,8 +71,10 @@ export default async function Start() {
         let outerWallDepth = 80;
         createOuterWalls(outerWallWidth, outerWallHeight, outerWallDepth);  //call functions
         trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0);
-        grab = new Grab(scene);
         bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
+        console.log(physics);
+        grab = new Grab(scene,physics);
+        
 
         //Text object
         let font = "three.js-master/examples/fonts/helvetiker_regular.typeface.json";
@@ -87,8 +89,6 @@ export default async function Start() {
         createGameControls(gp, grab, trolley, bridge);
         console.log(physics);
         physics.addScene(scene); //Add scene to physics engine
-        //animate(); //anim always last
-
     }
 
     function animate() {
