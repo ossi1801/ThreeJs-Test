@@ -8,11 +8,15 @@
       <title>Cube storage js</title>
       <link rel="stylesheet" href="style.css">
      <script src="../three.js-master/examples/jsm/libs/ammo.wasm.js"></script>
+      <script> 
+         function createScript() 
+         {
+             var script = document.createElement('script');  
+            script.src = "https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js";  
+            document.head.appendChild(script);
+         }       
       <script>
-         window.Ammo || 
-         var script = document.createElement('script');  
-         script.src = "https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js";  
-         document.head.appendChild(script);
+         window.Ammo || createScript()
           //document.write('<script src="https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js"><\/script>')</script>
       </script>
       	<script type="importmap">
