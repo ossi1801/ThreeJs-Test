@@ -9,14 +9,14 @@
       <link rel="stylesheet" href="style.css">
      <script src="../three.js-master/examples/jsm/libs/ammo.wasm.js"></script>
       <script> 
-         function createScript() 
+         window.Ammo || function createScript() 
          {
              var script = document.createElement('script');  
             script.src = "https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js";  
             document.head.appendChild(script);
-         }      
+         }
+      createScript();
       </script>
-      <script> window.Ammo || createScript()</script>
       	<script type="importmap">
             {
                "imports": {
