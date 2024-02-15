@@ -14,11 +14,9 @@
              var script = document.createElement('script');  
             script.src = "https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js";  
             document.head.appendChild(script);
-         }       
+         }      
       </script>
-         window.Ammo || createScript()
-          //document.write('<script src="https://github.com/ossi1801/ThreeJs-Test/blob/main/three.js-master/examples/jsm/libs/ammo.wasm.js"><\/script>')</script>
-      </script>
+      <script> window.Ammo || createScript()</script>
       	<script type="importmap">
             {
                "imports": {
