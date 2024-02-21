@@ -7,7 +7,9 @@ import { Bridge, Trolley, Grab, TextDraw } from './LoadObjects.js';
 import { getColor, randomIntFromInterval, createCameraPresetButtons, createToggleAutomaticLocationBtn } from './Extender.js';
 import { createGameControls } from './gamepad.js';
 export default async function Start() {
-    var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor, physics;
+    var renderer, scene, camera, controls, clock, grab, bridge, trolley, originalColor, physics,
+     physicsWorld, rigidBodies = [], pos = new THREE.Vector3(), tmpTrans = null;
+    const STATE = { DISABLE_DEACTIVATION : 4 };
     var boxArray = [];
     var nextLocation = null;
     var speed = 0.05;
@@ -18,8 +20,8 @@ export default async function Start() {
     //const boxPos = 3;
     const cylindePos = 3;
     const cylinderW = 1;
-    const xAmount = 50;
-    const yAmount = 16;
+    const xAmount = 50;//50
+    const yAmount = 16;//16
 
     //Physics
     Ammo().then(function (AmmoLib) {
@@ -33,7 +35,7 @@ export default async function Start() {
     });
 
     async function init() {
-       
+        setupPhysicsWorld();
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0x889988);
@@ -113,6 +115,7 @@ export default async function Start() {
     function animate() {
         requestAnimationFrame(animate);
         var delta = clock.getDelta();
+        updatePhysics( delta );
         if (grab.mixer) grab.mixer.update(delta);
         if (grab.mesh != undefined && boxArray.length > 0) {
 
@@ -228,32 +231,11 @@ export default async function Start() {
         let mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(x, y, z);
         mesh.userData.physics = { mass: 1 };
-
+        mesh.userData.physicsBody = getPhysicsBody(mesh,0.8, {x: 0, y: 0, z: 0, w: 1},  100,mesh.position);
         scene.add(mesh); //add mesh to scene
 
 
         return mesh;
-    }
-    function getPhysicsBody( radius = 0.8, quat = {x: 0, y: 0, z: 0, w: 1},  mass = 35) //TODO
-    {
-        let transform = new Ammo.btTransform();
-        transform.setIdentity();
-        transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
-        transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-        let motionState = new Ammo.btDefaultMotionState( transform );
-        let colShape = new Ammo.btSphereShape( radius );
-        colShape.setMargin( 0.05 );
-        let localInertia = new Ammo.btVector3( 0, 0, 0 );
-        colShape.calculateLocalInertia( mass, localInertia );
-        let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
-        let body = new Ammo.btRigidBody( rbInfo );
-
-        body.setFriction(4);
-        body.setRollingFriction(10);
-
-        body.setActivationState( STATE.DISABLE_DEACTIVATION );
-        return body;
-
     }
 
     function createOuterWalls(width = 20, height = 10, depth = 20) {
@@ -283,5 +265,68 @@ export default async function Start() {
         mesh.position.set(0, -height / 2, 0);
         scene.add(mesh);
     }
+
+    //physics-----------------------------------------------------------------------------------------
+
+    function setupPhysicsWorld(){
+        tmpTrans = new Ammo.btTransform();
+        let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration(),
+            dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration),
+            overlappingPairCache    = new Ammo.btDbvtBroadphase(),
+            solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+
+        physicsWorld           = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        physicsWorld.setGravity(new Ammo.btVector3(0, 0, 0));
+
+    }
+
+
+    function getPhysicsBody(mesh, radius = 0.8, quat = {x: 0, y: 0, z: 0, w: 1},  mass = 100,pos=new THREE.Vector3()) //TODO
+    {
+        let transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) ); //this bugs it out
+        transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+        let motionState = new Ammo.btDefaultMotionState( transform );
+        let colShape = new Ammo.btSphereShape( radius );
+        colShape.setMargin( 0.05 );
+        let localInertia = new Ammo.btVector3( 0, 0, 0 );
+        colShape.calculateLocalInertia( mass, localInertia );
+        let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
+        let body = new Ammo.btRigidBody( rbInfo );
+
+        body.setFriction(4);
+        body.setRollingFriction(10);
+
+        body.setActivationState( STATE.DISABLE_DEACTIVATION );
+        physicsWorld.addRigidBody( body );
+        rigidBodies.push(mesh);
+        return body;
+
+    }
+    function updatePhysics( deltaTime ){
+
+        // Step world
+        physicsWorld.stepSimulation( deltaTime, 10 );
+
+        // Update rigid bodies
+        for ( let i = 0; i < rigidBodies.length; i++ ) {
+            let objThree = rigidBodies[ i ];
+            let objAmmo = objThree.userData.physicsBody;
+            let ms = objAmmo.getMotionState();
+            if ( ms ) {
+
+                ms.getWorldTransform( tmpTrans );
+                let p = tmpTrans.getOrigin();
+                let q = tmpTrans.getRotation();
+                objThree.position.set( p.x(), p.y(), p.z() );
+                objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+            }
+        }
+
+    }
+
+   
 
 }
