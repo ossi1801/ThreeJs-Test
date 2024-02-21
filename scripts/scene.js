@@ -14,8 +14,10 @@ export default async function Start() {
     var goingUp = false;
     var automActive = false;
     var gp = { gamepad: null };
-    const boxW = 2;
-    const boxPos = 3;
+    //const boxW = 2;
+    //const boxPos = 3;
+    const cylindePos = 3;
+    const cylinderW = 1;
     const xAmount = 50;
     const yAmount = 16;
 
@@ -44,28 +46,45 @@ export default async function Start() {
         scene.add(camera); // required, since adding light as child of camera
         controls = new OrbitControls(camera, renderer.domElement);    // controls
         controls.maxPolarAngle = Math.PI / 2; //limit y-xis (can't roll to below scene)
-
         // ambient
         scene.add(new THREE.AmbientLight(0x444444));
         // light
         var light = new THREE.PointLight(0xffffff, 0.8);
         camera.add(light);
 
-        let offsetX = (xAmount * boxPos + boxW) / 2;
-        let offsetY = (yAmount * boxPos + boxW) / 2;
+        //Cylinders
+        let offsetX = (xAmount * cylindePos + cylinderW) / 2;
+        let offsetY = (yAmount * cylindePos + cylinderW) / 2;
         for (let i = 0; i < xAmount; i++) {
             for (let k = 0; k < yAmount; k++) {
-                let x = (boxW + boxPos * i) - offsetX;
-                let y = (boxW + boxPos * k) - offsetY;
+                let x = (cylinderW + cylindePos * i) - offsetX;
+                let y = (cylinderW + cylindePos * k) - offsetY;
                 let min = 1;
-                let max = 6;
-                let surfaceHeight = randomIntFromInterval(min, max);
-                let surfaceColor = getColor(min, max, surfaceHeight);
-                let z = surfaceHeight / 2 - 4;
-                createNamedBox(i, k, boxW, surfaceHeight, boxW, surfaceColor, x, z, y); //'grey'
-                //.userData.physics = { mass: 1 };
+                let max = randomIntFromInterval(min, 6);     
+                for (let l = min; l < max; l++) {     
+                    let d = cylinderW*2;           
+                    let z = d*l-5;//surfaceHeight / 2 - 4;
+                    let surfaceColor = getColor(min, max, l);
+                    createNamedCylinder(i, k, cylinderW, cylinderW, d, surfaceColor, x, z, y);
+                }
             }
         }
+        //Boxes
+        // let offsetX = (xAmount * boxPos + boxW) / 2;
+        // let offsetY = (yAmount * boxPos + boxW) / 2;
+        // for (let i = 0; i < xAmount; i++) {
+        //     for (let k = 0; k < yAmount; k++) {
+        //         let x = (boxW + boxPos * i) - offsetX;
+        //         let y = (boxW + boxPos * k) - offsetY;
+        //         let min = 1;
+        //         let max = 6;
+        //         let surfaceHeight = randomIntFromInterval(min, max);
+        //         let surfaceColor = getColor(min, max, surfaceHeight);
+        //         let z = surfaceHeight / 2 - 4;
+        //         createNamedBox(i, k, boxW, surfaceHeight, boxW, surfaceColor, x, z, y); //'grey'
+        //         //.userData.physics = { mass: 1 };
+        //     }
+        // }
         let outerWallWidth = 150;
         let outerWallHeight = 10;
         let outerWallDepth = 80;
@@ -196,6 +215,47 @@ export default async function Start() {
         scene.add(mesh);
         return mesh;
     }
+    function createNamedCylinder(xid, yid, width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
+        let m = createCylinder(width, width, depth, color, x, y, z);
+        boxArray.push({ x: xid, y: yid, m: m });
+    }
+    function createCylinder(width = 2, height = 2, depth = 2, color = 'gray', x = -2, y = -4, z = -6) {
+        let geometry = new THREE.CylinderGeometry( width, height, depth, 32 ); 
+        let material = new THREE.MeshPhongMaterial({
+            color: color,
+           // wireframe: true,
+        });
+        let mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x, y, z);
+        mesh.userData.physics = { mass: 1 };
+
+        scene.add(mesh); //add mesh to scene
+
+
+        return mesh;
+    }
+    function getPhysicsBody( radius = 0.8, quat = {x: 0, y: 0, z: 0, w: 1},  mass = 35) //TODO
+    {
+        let transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+        transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+        let motionState = new Ammo.btDefaultMotionState( transform );
+        let colShape = new Ammo.btSphereShape( radius );
+        colShape.setMargin( 0.05 );
+        let localInertia = new Ammo.btVector3( 0, 0, 0 );
+        colShape.calculateLocalInertia( mass, localInertia );
+        let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
+        let body = new Ammo.btRigidBody( rbInfo );
+
+        body.setFriction(4);
+        body.setRollingFriction(10);
+
+        body.setActivationState( STATE.DISABLE_DEACTIVATION );
+        return body;
+
+    }
+
     function createOuterWalls(width = 20, height = 10, depth = 20) {
         var wallGeometry = new THREE.BoxGeometry(width, height, depth);
         var innerWallMat = new THREE.MeshPhongMaterial({

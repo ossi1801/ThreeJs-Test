@@ -19,6 +19,7 @@ const gamepadAPI = {
     console.log('Gamepad disconnected.');
   },
   update() {
+    console.log(gamepadAPI);
     gamepadAPI.buttonsCache = [];   // Clear the buttons cache
     for (let k = 0; k < gamepadAPI.buttonsStatus.length; k++) {  // Move the buttons status from the previous frame to the cache
       gamepadAPI.buttonsCache[k] = gamepadAPI.buttonsStatus[k];
