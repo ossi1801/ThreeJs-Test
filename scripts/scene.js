@@ -65,7 +65,7 @@ export default async function Start() {
                 let max = randomIntFromInterval(min, 6);     
                 for (let l = min; l < max; l++) {     
                     let d = cylinderW*2;           
-                    let z = d*l-5;//surfaceHeight / 2 - 4;
+                    let z = d*l-1;//surfaceHeight / 2 - 4;
                     let surfaceColor = getColor(min, max, l);
                     createNamedCylinder(i, k, cylinderW, cylinderW, d, surfaceColor, x, z, y);
                 }
@@ -91,11 +91,22 @@ export default async function Start() {
         let outerWallHeight = 10;
         let outerWallDepth = 80;
         createOuterWalls(outerWallWidth, outerWallHeight, outerWallDepth);  //call functions
-        trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 6, 0);
-        bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 6, 0);
-        console.log(physics);
-        grab = new Grab(scene,physics);
-        
+        createFloor(outerWallWidth,1,outerWallDepth);
+        trolley = new Trolley(scene, 3, 1, 2, "lightblue", 0, 11, 0);
+        bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 11, 0);
+        //Test Physics
+        let collGeom = new THREE.BoxGeometry(2, 2, 2);
+        let collMat = new THREE.MeshStandardMaterial({
+            color: "#ff0000",
+            wireframe: true,
+        });
+        let colliderMesh = new THREE.Mesh(collGeom, collMat);
+        colliderMesh.name = "collider";
+        colliderMesh.userData.physicsBody = getPhysicsBody(colliderMesh, { x: 0, y: 0, z: 0, w: 1 }, 100, colliderMesh.position);
+        scene.add(colliderMesh);   
+        grab = new Grab(scene,physics,colliderMesh);
+    
+
 
         //Text object
         let font = "three.js-master/examples/fonts/helvetiker_regular.typeface.json";
@@ -230,8 +241,8 @@ export default async function Start() {
         });
         let mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(x, y, z);
-        mesh.userData.physics = { mass: 1 };
-        mesh.userData.physicsBody = getPhysicsBody(mesh,0.8, {x: 0, y: 0, z: 0, w: 1},  100,mesh.position);
+        mesh.userData.physics = { mass: 1 };    
+        mesh.userData.physicsBody = getPhysicsBody(mesh, {x: 0, y: 0, z: 0, w: 1},  100,mesh.position);  
         scene.add(mesh); //add mesh to scene
 
 
@@ -253,17 +264,7 @@ export default async function Start() {
             side: THREE.BackSide
         });
         mesh = new THREE.Mesh(wallGeometry, outerWallMat);
-        //mesh.userData.physics = { mass: 0 }; //
-        scene.add(mesh);
-        let floorGeom = new THREE.BoxGeometry(width, 1, depth);
-        let floorMat = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            transparent: false,
-        });
-        mesh = new THREE.Mesh(floorGeom, floorMat);
-        mesh.userData.physics = { mass: 0 }; //Floor or smth
-        mesh.position.set(0, -height / 2, 0);
-        scene.add(mesh);
+        scene.add(mesh);  
     }
 
     //physics-----------------------------------------------------------------------------------------
@@ -276,19 +277,58 @@ export default async function Start() {
             solver                  = new Ammo.btSequentialImpulseConstraintSolver();
 
         physicsWorld           = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-        physicsWorld.setGravity(new Ammo.btVector3(0, 0, 0));
+        physicsWorld.setGravity(new Ammo.btVector3(0, -9.81, 0));
 
     }
 
 
-    function getPhysicsBody(mesh, radius = 0.8, quat = {x: 0, y: 0, z: 0, w: 1},  mass = 100,pos=new THREE.Vector3()) //TODO
+    function createFloor(w,h,d){
+                
+        let pos = {x: 0, y: -5, z: 0};
+        let scale = {x: w, y: h, z: d};
+        let quat = {x: 0, y: 0, z: 0, w: 1};
+        let mass = 0;
+        //threeJS Section
+        let wall = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshPhongMaterial({color: 0xffffff})); //debug color  0x42f5bf
+        wall.position.set(pos.x, pos.y, pos.z);
+        wall.scale.set(scale.x, scale.y, scale.z);
+        wall.castShadow = true;
+        wall.receiveShadow = true;
+        scene.add(wall);
+        //Ammojs Section
+        let transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+        transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+        let motionState = new Ammo.btDefaultMotionState( transform );
+
+        let colShape = new Ammo.btBoxShape( new Ammo.btVector3( scale.x * 0.5, scale.y * 0.5, scale.z * 0.5 ) );
+        colShape.setMargin( 0.05 );
+
+        let localInertia = new Ammo.btVector3( 0, 0, 0 );
+        colShape.calculateLocalInertia( mass, localInertia );
+
+        let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
+        let body = new Ammo.btRigidBody( rbInfo );
+
+        body.setFriction(4);
+        body.setRollingFriction(10);
+
+        physicsWorld.addRigidBody( body );
+
+        //const gridHelper = new THREE.GridHelper( 50, 50, 0x1111aa, 0xaa1111 );
+        //scene.add( gridHelper );
+
+        wall.userData.tag = "floor";
+    }
+    function getPhysicsBody(mesh, quat = {x: 0, y: 0, z: 0, w: 1},  mass = 100,pos=new THREE.Vector3()) //TODO
     {
         let transform = new Ammo.btTransform();
         transform.setIdentity();
         transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) ); //this bugs it out
         transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
         let motionState = new Ammo.btDefaultMotionState( transform );
-        let colShape = new Ammo.btSphereShape( radius );
+        let colShape =  new Ammo.btBoxShape(  new Ammo.btVector3( mesh.scale.x , mesh.scale.y , mesh.scale.z ) );//new Ammo.btSphereShape( 0.8 );
         colShape.setMargin( 0.05 );
         let localInertia = new Ammo.btVector3( 0, 0, 0 );
         colShape.calculateLocalInertia( mass, localInertia );

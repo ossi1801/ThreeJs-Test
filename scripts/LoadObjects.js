@@ -87,9 +87,10 @@ export class Trolley extends AnimatedObject {
 }
 
 export class Grab extends AnimatedObject {
-    constructor(scene,physics) {
+    constructor(scene,physics,colliderMesh) {
         super(scene);
         this.physics = physics;
+        this.colliderMesh =colliderMesh;
         this.scene = scene;
         this.mixer = null;
         this.action = null;
@@ -109,9 +110,9 @@ export class Grab extends AnimatedObject {
             this.action.setLoop(THREE.LoopOnce); // Do only once
             this.action.clampWhenFinished = true; //Finishing pos
             this.scene.add(this.model.scene);
-            //if everything okay draw extra stuff
-            this.createCollider();
+            //if everything okay draw extra stuff          
             this.loadGrabLine(); 
+            this.createCollider();
          
         }.bind(this),
             function (xhr) {  // called while loading is progressing
@@ -125,39 +126,33 @@ export class Grab extends AnimatedObject {
         );
     }
     createCollider(){
-        let collGeom = new THREE.BoxGeometry(2, 2, 2);
-        let collMat = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            wireframe : true,
-        });
-        this.colliderMesh = new THREE.Mesh(collGeom, collMat);
-        this.colliderMesh.userData.physics = { mass: 1 }; //Collider has no mass?
-        this.colliderMesh.name = "collider";
-        this.scene.add(this.colliderMesh);   
-        this.physics.addMesh(this.colliderMesh,1);
-        //console.log(this.colliderMesh);  
+       this.colliderMesh.position.setX(this.mesh.position.x);
+       this.colliderMesh.position.setZ(this.mesh.position.z);
+       this.colliderMesh.position.setY(this.mesh.position.y+5);
     }
     loadGrabLine() {
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
         const points = [];
-        points.push(new THREE.Vector3(0, 2, 0));
-        points.push(new THREE.Vector3(0, 6, 0));
+        let startheight = 11;
+        points.push(new THREE.Vector3(0, startheight-4, 0));
+        points.push(new THREE.Vector3(0, startheight, 0));
         const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
         this.mesh = new THREE.Line(lineGeo, lineMat);
         this.scene.add(this.mesh);
-        this.model.scene.position.setZ(this.mesh.position.z);
     }
     moveX(Direction = "+", speed = 0.05) {
         super.moveX(Direction, speed);
         this.model.scene.position.setX(this.mesh.position.x);
-        //this.colliderMesh.position.setX(this.mesh.position.x);
-        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
+        this.model.scene.position.setZ(this.mesh.position.z);
+        this.model.scene.position.setY(this.mesh.position.y+5);
+        this.moveCollider(Direction,speed,0,0);
     }
     moveZ(Direction = "+", speed = 0.05) {
         super.moveZ(Direction, speed);
+        this.model.scene.position.setX(this.mesh.position.x);
         this.model.scene.position.setZ(this.mesh.position.z);
-        //this.colliderMesh.position.setZ(this.mesh.position.z);
-        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
+        this.model.scene.position.setY(this.mesh.position.y+5);
+        this.moveCollider(Direction,0,0,speed);     
     }
     moveY(Direction = "+", speed = 0.05) {
         if (Direction == "+") {//down
@@ -168,9 +163,22 @@ export class Grab extends AnimatedObject {
             this.mesh.position.y -= speed / 2;
             this.mesh.scale.y += speed / 10;
         }
-        this.model.scene.position.setY(this.mesh.position.y);
-        this.physics.setMeshPosition(this.colliderMesh,this.mesh.position);
-        //this.colliderMesh.position.setY(this.mesh.position.y);
+        this.model.scene.position.setX(this.mesh.position.x);
+        this.model.scene.position.setZ(this.mesh.position.z);
+        this.model.scene.position.setY(this.mesh.position.y+5);       
+        this.moveCollider(Direction,0,speed,0);     
+    }
+    moveCollider(Direction,xs=0,ys=0,ds=0){
+        if(Direction=="-"){
+            xs=-xs;
+            ys=-ys;
+            ds=-ds;
+        }
+        let resultantImpulse = new Ammo.btVector3( xs,ys,ds )
+        resultantImpulse.op_mul(50);
+
+        let physicsBody = this.colliderMesh.userData.physicsBody;
+        physicsBody.setLinearVelocity( resultantImpulse );
     }
     playGrabAnim() {
         this.action = this.mixer.clipAction(this.model.animations[0]);
