@@ -99,6 +99,9 @@ export default async function Start() {
         let collMat = new THREE.MeshStandardMaterial({color: "#ff0000", wireframe: true,});
         let colliderMesh = new THREE.Mesh(collGeom, collMat);
         colliderMesh.name = "collider";
+        colliderMesh.position.setX(0);
+        colliderMesh.position.setZ(0);
+        colliderMesh.position.setY(8);
         colliderMesh.userData.physicsBody = getPhysicsBody(colliderMesh, { x: 0, y: 0, z: 0, w: 1 }, 100, colliderMesh.position);
         scene.add(colliderMesh);   
         grab = new Grab(scene,physics,colliderMesh);

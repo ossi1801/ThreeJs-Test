@@ -111,9 +111,7 @@ export class Grab extends AnimatedObject {
             this.action.clampWhenFinished = true; //Finishing pos
             this.scene.add(this.model.scene);
             //if everything okay draw extra stuff          
-            this.loadGrabLine(); 
-            this.createCollider();
-         
+            this.loadGrabLine();          
         }.bind(this),
             function (xhr) {  // called while loading is progressing
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -125,11 +123,7 @@ export class Grab extends AnimatedObject {
             }.bind(this)
         );
     }
-    createCollider(){
-       this.colliderMesh.position.setX(this.mesh.position.x);
-       this.colliderMesh.position.setZ(this.mesh.position.z);
-       this.colliderMesh.position.setY(this.mesh.position.y+5);
-    }
+
     loadGrabLine() {
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
         const points = [];
@@ -175,14 +169,10 @@ export class Grab extends AnimatedObject {
             ds=-ds;
         }
         let resultantImpulse = new Ammo.btVector3( xs,ys,ds )
-        resultantImpulse.op_mul(50);
+        resultantImpulse.op_mul(25);
         let physicsBody = this.colliderMesh.userData.physicsBody;
        
         physicsBody.setLinearVelocity( resultantImpulse );
-       //physicsBody.setX(this.mesh.position.x);
-       //physicsBody.setZ(this.mesh.position.z);
-       //physicsBody.setY(this.mesh.position.y+5);
-
         //these only move mesh butnot the actual physics
         //this.colliderMesh.position.setX(this.mesh.position.x);
         //this.colliderMesh.position.setZ(this.mesh.position.z);
