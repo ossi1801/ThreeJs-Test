@@ -176,9 +176,17 @@ export class Grab extends AnimatedObject {
         }
         let resultantImpulse = new Ammo.btVector3( xs,ys,ds )
         resultantImpulse.op_mul(50);
-
         let physicsBody = this.colliderMesh.userData.physicsBody;
+       
         physicsBody.setLinearVelocity( resultantImpulse );
+       //physicsBody.setX(this.mesh.position.x);
+       //physicsBody.setZ(this.mesh.position.z);
+       //physicsBody.setY(this.mesh.position.y+5);
+
+        //these only move mesh butnot the actual physics
+        //this.colliderMesh.position.setX(this.mesh.position.x);
+        //this.colliderMesh.position.setZ(this.mesh.position.z);
+        //this.colliderMesh.position.setY(this.mesh.position.y+5);
     }
     playGrabAnim() {
         this.action = this.mixer.clipAction(this.model.animations[0]);

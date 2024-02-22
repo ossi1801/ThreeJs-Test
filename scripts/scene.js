@@ -96,10 +96,7 @@ export default async function Start() {
         bridge = new Bridge(scene, 0.5, 1, outerWallDepth, "#f9b418", -2, 11, 0);
         //Test Physics
         let collGeom = new THREE.BoxGeometry(2, 2, 2);
-        let collMat = new THREE.MeshStandardMaterial({
-            color: "#ff0000",
-            wireframe: true,
-        });
+        let collMat = new THREE.MeshStandardMaterial({color: "#ff0000", wireframe: true,});
         let colliderMesh = new THREE.Mesh(collGeom, collMat);
         colliderMesh.name = "collider";
         colliderMesh.userData.physicsBody = getPhysicsBody(colliderMesh, { x: 0, y: 0, z: 0, w: 1 }, 100, colliderMesh.position);
@@ -328,7 +325,7 @@ export default async function Start() {
         transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) ); //this bugs it out
         transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
         let motionState = new Ammo.btDefaultMotionState( transform );
-        let colShape =  new Ammo.btBoxShape(  new Ammo.btVector3( mesh.scale.x , mesh.scale.y , mesh.scale.z ) );//new Ammo.btSphereShape( 0.8 );
+        let colShape =  new Ammo.btBoxShape(  new Ammo.btVector3( mesh.scale.x , mesh.scale.y , mesh.scale.z ) );//new Ammo.btSphereShape( radius );
         colShape.setMargin( 0.05 );
         let localInertia = new Ammo.btVector3( 0, 0, 0 );
         colShape.calculateLocalInertia( mass, localInertia );
@@ -336,7 +333,7 @@ export default async function Start() {
         let body = new Ammo.btRigidBody( rbInfo );
 
         body.setFriction(4);
-        body.setRollingFriction(10);
+        body.setRollingFriction(10); //TODO check these when cube not "ball"
 
         body.setActivationState( STATE.DISABLE_DEACTIVATION );
         physicsWorld.addRigidBody( body );
